@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Existencias caprinas — Chaco</title>
+<style>
+:root{
+  color-scheme: light;
+  --surface-0:#f4f3f0; --surface-1:#fcfcfb; --border:#e2e0da; --border-strong:#c9c6bd;
+  --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#78766f;
+  --accent:#2a78d6; --accent-soft:#e8f0fc; --hi:#eb6834; --hi-soft:#fdeee7;
+  --s100:#cde2fb; --s200:#9ec5f4; --s300:#6da7ec; --s400:#3987e5;
+  --s500:#256abf; --s600:#184f95; --s700:#0d366b;
+  --shadow:0 1px 2px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  color-scheme: dark;
+  --surface-0:#111110; --surface-1:#1a1a19; --border:#33322f; --border-strong:#4a4945;
+  --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#8e8c82;
+  --accent:#3987e5; --accent-soft:#16283f; --hi:#d95926; --hi-soft:#33201a;
+  --s100:#0d366b; --s200:#184f95; --s300:#1c5cab; --s400:#256abf;
+  --s500:#2a78d6; --s600:#3987e5; --s700:#6da7ec;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --surface-0:#111110; --surface-1:#1a1a19; --border:#33322f; --border-strong:#4a4945;
+  --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#8e8c82;
+  --accent:#3987e5; --accent-soft:#16283f; --hi:#d95926; --hi-soft:#33201a;
+  --s100:#0d366b; --s200:#184f95; --s300:#1c5cab; --s400:#256abf;
+  --s500:#2a78d6; --s600:#3987e5; --s700:#6da7ec;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--surface-0);color:var(--text-primary);
+  font:400 15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 16px 64px}
+header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:6px}
+h1{font-size:25px;line-height:1.2;margin:0;letter-spacing:-.02em;font-weight:650}
+.sub{color:var(--text-secondary);font-size:13.5px;margin:6px 0 0;max-width:70ch}
+.themebtn{background:var(--surface-1);border:1px solid var(--border);color:var(--text-secondary);
+  border-radius:999px;padding:7px 14px;font-size:12.5px;cursor:pointer;font-family:inherit}
+.themebtn:hover{border-color:var(--border-strong);color:var(--text-primary)}
+/* tabs */
+.tabs{display:flex;gap:4px;margin:22px 0 20px;border-bottom:1px solid var(--border)}
+.tab{appearance:none;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;
+  padding:10px 14px;font:inherit;font-size:14px;color:var(--text-secondary);cursor:pointer;border-radius:6px 6px 0 0}
+.tab:hover{color:var(--text-primary);background:var(--surface-1)}
+.tab[aria-selected="true"]{color:var(--text-primary);border-bottom-color:var(--accent);font-weight:600}
+.panel[hidden]{display:none}
+/* cards */
+.card{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:18px 20px 20px;box-shadow:var(--shadow);margin-bottom:18px}
+.card h2{font-size:15.5px;margin:0 0 3px;font-weight:620;letter-spacing:-.01em}
+.card .note{font-size:12.5px;color:var(--text-muted);margin:0 0 16px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin-bottom:18px}
+.tile{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:15px 17px;box-shadow:var(--shadow)}
+.tile .lab{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);font-weight:600}
+.tile .val{font-size:29px;font-weight:650;letter-spacing:-.025em;margin:7px 0 2px;font-variant-numeric:tabular-nums}
+.tile .meta{font-size:12.5px;color:var(--text-secondary)}
+.tile .meta b{color:var(--hi);font-weight:640}
+/* segmented control */
+.seg{display:inline-flex;background:var(--surface-0);border:1px solid var(--border);border-radius:9px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{appearance:none;background:none;border:0;font:inherit;font-size:12.5px;color:var(--text-secondary);
+  padding:6px 12px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.seg button:hover{color:var(--text-primary)}
+.seg button[aria-pressed="true"]{background:var(--surface-1);color:var(--text-primary);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.ctrls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.ctrls .lbl{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+/* bars */
+.bars{display:flex;flex-direction:column;gap:2px}
+.row{display:grid;grid-template-columns:150px 1fr 96px;gap:10px;align-items:center;padding:3px 0;border-radius:6px}
+.row:hover{background:var(--surface-0)}
+.row .nm{display:block;font-size:12.5px;color:var(--text-secondary);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row.on .nm{color:var(--text-primary);font-weight:640}
+.track{height:15px;position:relative;display:block;width:100%;min-width:0}
+.bar{display:block;height:15px;background:var(--accent);border-radius:0 4px 4px 0;min-width:2px;transition:width .35s cubic-bezier(.4,0,.2,1)}
+.row.on .bar{background:var(--hi)}
+.row .v{display:block;text-align:right;font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--text-primary);font-weight:560}
+.row.on .v{color:var(--hi)}
+/* legend */
+.legend{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--text-secondary);margin-bottom:14px}
+.legend .k{display:inline-flex;align-items:center;gap:6px}
+.legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* map */
+.maplayout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px;align-items:start}
+@media(max-width:820px){.maplayout{grid-template-columns:1fr}.row{grid-template-columns:110px 1fr 78px}}
+svg.map{width:100%;height:auto;aspect-ratio:620/560;display:block}
+svg.map path{stroke:var(--surface-1);stroke-width:.9;cursor:pointer;transition:fill .3s ease}
+svg.map path:hover{stroke:var(--text-primary);stroke-width:1.8}
+svg.map path.sel{stroke:var(--text-primary);stroke-width:2}
+.ramp{display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--text-muted);margin-top:10px;font-variant-numeric:tabular-nums}
+.ramp .steps{display:flex;height:9px;flex:1;max-width:260px;border-radius:3px;overflow:hidden}
+.ramp .steps i{flex:1}
+/* tooltip */
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--surface-1);border:1px solid var(--border-strong);
+  border-radius:9px;padding:9px 12px;box-shadow:0 4px 18px rgba(0,0,0,.18);font-size:12.5px;opacity:0;
+  transition:opacity .12s;max-width:250px}
+#tip .t{font-weight:640;margin-bottom:5px;font-size:13px}
+#tip .l{display:flex;justify-content:space-between;gap:16px;color:var(--text-secondary);line-height:1.7}
+#tip .l b{color:var(--text-primary);font-variant-numeric:tabular-nums;font-weight:600}
+/* timeline */
+.timeline{border-top:1px solid var(--border);margin-top:18px;padding-top:16px}
+.tlhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.tlhead .cur{font-size:14px;font-weight:640}
+.tlhead .cnt{font-size:12px;color:var(--text-muted)}
+input[type=range]{width:100%;accent-color:var(--accent);height:22px}
+input[type=range]:disabled{opacity:.5;cursor:not-allowed}
+.spark{width:100%;height:56px;display:block;margin-top:6px}
+.warn{background:var(--hi-soft);border:1px solid var(--hi);border-radius:9px;padding:11px 14px;font-size:12.5px;
+  color:var(--text-secondary);line-height:1.55;margin-top:14px}
+.warn b{color:var(--text-primary)}
+/* table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left;font-variant-numeric:normal}
+thead th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);
+  font-weight:600;cursor:pointer;user-select:none;white-space:nowrap;border-bottom:1px solid var(--border-strong)}
+thead th:hover{color:var(--text-primary)}
+thead th .ar{opacity:.45;font-size:10px}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--surface-0)}
+tbody tr.sel{background:var(--hi-soft)}
+tbody tr.sel td:first-child{font-weight:640}
+td .chip{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:8px;vertical-align:baseline}
+.scroll{overflow-x:auto}
+footer{color:var(--text-muted);font-size:12px;margin-top:26px;line-height:1.6}
+</style>
+<style>
+.chartcard{margin-bottom:18px}
+svg.line{width:100%;height:auto;aspect-ratio:760/260;display:block;overflow:visible}
+svg.line .gl{stroke:var(--border);stroke-width:1}
+svg.line .ax{fill:var(--text-muted);font-size:10.5px;font-family:inherit}
+.hint{font-size:12px;color:var(--text-muted);margin-top:8px;line-height:1.55}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:820px){.two{grid-template-columns:1fr}}
+.stk{display:flex;height:30px;border-radius:5px;overflow:hidden;background:var(--surface-0)}
+.stk i{display:block;height:100%;cursor:pointer;transition:opacity .15s;border-right:1px solid var(--surface-1)}
+.stk i:last-child{border-right:0}
+.stk i:hover{opacity:.75}
+.estrow{margin-bottom:14px}
+.estrow .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;font-size:13px}
+.estrow .hd b{font-weight:640}
+.estrow .hd span{color:var(--text-muted);font-size:12px}
+.warn.soft{background:var(--accent-soft);border-color:var(--accent)}
+</style>
+</head>
+<body>
+
+<div id="tip" role="tooltip"></div>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>Existencias caprinas — Chaco y Argentina</h1>
+    <p class="sub">Detalle departamental de Chaco al 31-03-2026 y evolución provincial 2008–2026. Fuente: SENASA / Dirección Nacional de Ganadería.</p>
+  </div>
+  <button class="themebtn" id="theme" type="button">Modo oscuro</button>
+</header>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="tab-map" aria-controls="p-map" aria-selected="true">Chaco por departamento</button>
+  <button class="tab" role="tab" id="tab-evo" aria-controls="p-evo" aria-selected="false">Evolución 2008–2026</button>
+</div>
+
+<section class="panel" id="p-map" role="tabpanel" aria-labelledby="tab-map">
+  <div class="grid3" id="mapTiles"></div>
+  <div class="warn" id="catWarn" style="margin:0 0 18px" hidden></div>
+
+  <div class="card">
+    <h2>Mapa de Chaco por departamento</h2>
+    <p class="note">Corte 31-03-2026. El detalle por departamento se despliega al posar el cursor; un clic lo fija en la tabla.</p>
+    <div class="ctrls"><span class="lbl">Variable</span><div class="seg" id="segVar"></div></div>
+    <p class="note" style="margin:-6px 0 14px;font-size:12px">Las variables por habitante usan el Censo 2022 (INDEC), población en viviendas particulares: 1.124.603 personas en Chaco, de las cuales 108.159 (9,6%) son rurales — variable URP, que suma rural agrupada y rural dispersa. El denominador rural mide intensidad productiva; el de población total mide, sobre todo, cuán urbano es el departamento.</p>
+    <div class="maplayout">
+      <div>
+        <svg class="map" id="map" role="img" aria-label="Mapa coroplético de existencias caprinas en Chaco"></svg>
+        <div class="ramp"><span id="rampLo">0</span><span class="steps" id="rampSteps"></span><span id="rampHi">0</span></div>
+      </div>
+      <div>
+        <h2 style="font-size:13px;margin:0 0 10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Top 10 departamentos</h2>
+        <div class="bars" id="mapBars"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Distribución por estrato de tamaño</h2>
+    <p class="note">Cómo se reparte el stock caprino según el tamaño de la majada. Cada barra suma 100%.</p>
+    <div class="warn" id="estWarn" style="margin:0 0 18px"></div>
+    <div id="estChart"></div>
+    <div class="legend" id="estLeg" style="margin-top:16px"></div>
+    <div class="scroll" style="margin-top:16px"><table id="estTbl"></table></div>
+  </div>
+
+  <div class="card">
+    <h2>Detalle por departamento</h2>
+    <p class="note">Ordenada por cantidad; el criterio se cambia desde los encabezados.</p>
+    <div class="scroll"><table id="depTbl"></table></div>
+  </div>
+</section>
+
+<section class="panel" id="p-evo" role="tabpanel" aria-labelledby="tab-evo" hidden>
+  <div class="grid3" id="evoTiles"></div>
+  <div class="warn" id="evoWarn" style="margin:0 0 18px"></div>
+
+  <div class="two">
+    <div class="card chartcard">
+      <h2>Chaco — total de caprinos</h2>
+      <p class="note">Existencias declaradas, 2008–2026.</p>
+      <svg class="line" id="lnChaco" role="img" aria-label="Evolución del total de caprinos en Chaco"></svg>
+    </div>
+    <div class="card chartcard">
+      <h2>Chaco — participación en el país</h2>
+      <p class="note">Porcentaje del rodeo caprino nacional.</p>
+      <svg class="line" id="lnShare" role="img" aria-label="Participación de Chaco en el total nacional"></svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Ranking provincial por año</h2>
+    <p class="note">Chaco resaltado en naranja. El año se selecciona con la barra inferior.</p>
+    <div class="tlhead">
+      <span class="cur">Año: <span id="yrLabel">—</span></span>
+      <span class="cnt" id="yrCount"></span>
+    </div>
+    <input type="range" id="yrSlider" min="0" max="0" step="1" value="0" aria-label="Año">
+    <div class="legend" style="margin-top:14px">
+      <span class="k"><i class="sw" style="background:var(--hi)"></i> Chaco</span>
+      <span class="k"><i class="sw" style="background:var(--accent)"></i> Resto de las provincias</span>
+    </div>
+    <div class="bars" id="provBars"></div>
+  </div>
+
+  <div class="card">
+    <h2>Serie completa de Chaco</h2>
+    <p class="note">Desagregada por categoría; ordenable desde los encabezados.</p>
+    <div class="scroll"><table id="serieTbl"></table></div>
+  </div>
+</section>
+
+<footer>
+  Fuente: Existencias caprinas, SENASA / Dirección Nacional de Ganadería (planillas provistas por el usuario).
+  Geometrías departamentales: IGN Argentina. Población: Censo 2022, INDEC. Corte departamental: 31-03-2026.
+</footer>
+</div>
+<script>
+const DATA={"anios":["2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025","2026"],"serie":{"2008":{"Buenos Aires":{"chivo":9886,"cabra":9408,"cabrito":4009,"total":23303},"Catamarca":{"chivo":47258,"cabra":52091,"cabrito":3343,"total":102692},"Chaco":{"chivo":148476,"cabra":114994,"cabrito":27241,"total":290711},"Chubut":{"chivo":126376,"cabra":14698,"cabrito":6505,"total":147579},"Córdoba":{"chivo":34124,"cabra":132142,"cabrito":16884,"total":183150},"Corrientes":{"chivo":8216,"cabra":9420,"cabrito":1589,"total":19225},"Entre Ríos":{"chivo":2896,"cabra":5656,"cabrito":2193,"total":10745},"Formosa":{"chivo":59878,"cabra":126349,"cabrito":43002,"total":229229},"Jujuy":{"chivo":72503,"cabra":10782,"cabrito":3304,"total":86589},"La Pampa":{"chivo":39568,"cabra":23035,"cabrito":6340,"total":68943},"La Rioja":{"chivo":48160,"cabra":16545,"cabrito":461,"total":65166},"Mendoza":{"chivo":314208,"cabra":464271,"cabrito":222683,"total":1001162},"Misiones":{"chivo":1221,"cabra":1135,"cabrito":187,"total":2543},"Neuquén":{"chivo":346201,"cabra":60012,"cabrito":3104,"total":409317},"Río Negro":{"chivo":163448,"cabra":69910,"cabrito":22060,"total":255418},"Salta":{"chivo":144435,"cabra":129006,"cabrito":39218,"total":312659},"San Juan":{"chivo":9418,"cabra":18994,"cabrito":659,"total":29071},"San Luis":{"chivo":22200,"cabra":64273,"cabrito":9553,"total":96026},"Santa Cruz":{"chivo":59939,"cabra":0,"cabrito":0,"total":59939},"Santa Fe":{"chivo":20783,"cabra":31034,"cabrito":4863,"total":56680},"Santiago del Estero":{"chivo":159309,"cabra":180886,"cabrito":38417,"total":378612},"Tucumán":{"chivo":8339,"cabra":4627,"cabrito":82,"total":13048}},"2009":{"Buenos Aires":{"chivo":6847,"cabra":10707,"cabrito":5465,"capon":3,"cabrilla":0,"total":23022},"CABA":{"chivo":15,"cabra":24,"cabrito":0,"capon":0,"cabrilla":0,"total":39},"Catamarca":{"chivo":38040,"cabra":53247,"cabrito":2601,"capon":0,"cabrilla":0,"total":93888},"Chaco":{"chivo":157343,"cabra":130829,"cabrito":31197,"capon":62,"cabrilla":353,"total":319784},"Chubut":{"chivo":123321,"cabra":14826,"cabrito":5896,"capon":140,"cabrilla":340,"total":144523},"Córdoba":{"chivo":19014,"cabra":108715,"cabrito":15883,"capon":0,"cabrilla":2,"total":143614},"Corrientes":{"chivo":10501,"cabra":9842,"cabrito":1847,"capon":7,"cabrilla":10,"total":22207},"Entre Ríos":{"chivo":3646,"cabra":7455,"cabrito":3336,"capon":5,"cabrilla":57,"total":14499},"Formosa":{"chivo":54049,"cabra":133169,"cabrito":33919,"capon":550,"cabrilla":953,"total":222640},"Jujuy":{"chivo":72935,"cabra":11594,"cabrito":3235,"capon":147,"cabrilla":302,"total":88213},"La Pampa":{"chivo":23554,"cabra":46132,"cabrito":13510,"capon":99,"cabrilla":0,"total":83295},"La Rioja":{"chivo":32578,"cabra":52415,"cabrito":7011,"capon":0,"cabrilla":0,"total":92004},"Mendoza":{"chivo":418003,"cabra":351810,"cabrito":131487,"capon":58,"cabrilla":60,"total":901418},"Misiones":{"chivo":770,"cabra":1890,"cabrito":110,"capon":2,"cabrilla":60,"total":2832},"Neuquén":{"chivo":642966,"cabra":137767,"cabrito":6142,"capon":0,"cabrilla":105,"total":786980},"Río Negro":{"chivo":135522,"cabra":64926,"cabrito":21119,"capon":640,"cabrilla":903,"total":223110},"Salta":{"chivo":143547,"cabra":129247,"cabrito":38696,"capon":408,"cabrilla":901,"total":312799},"San Juan":{"chivo":6527,"cabra":25361,"cabrito":4413,"capon":0,"cabrilla":1,"total":36302},"San Luis":{"chivo":15726,"cabra":63509,"cabrito":11118,"capon":531,"cabrilla":702,"total":91586},"Santa Cruz":{"chivo":1317,"cabra":0,"cabrito":0,"capon":0,"cabrilla":0,"total":1317},"Santa Fe":{"chivo":17764,"cabra":32037,"cabrito":4658,"capon":0,"cabrilla":0,"total":54459},"Santiago del Estero":{"chivo":134563,"cabra":207486,"cabrito":46719,"capon":178,"cabrilla":1002,"total":389948},"Tucumán":{"chivo":7565,"cabra":5516,"cabrito":164,"capon":50,"cabrilla":50,"total":13345}},"2010":{"CABA":{"chivo":18,"cabra":18,"cabrito":0,"capon":0,"cabrilla":0,"total":36},"Buenos Aires":{"chivo":8185,"cabra":11538,"cabrito":5804,"capon":130,"cabrilla":102,"total":25759},"Catamarca":{"chivo":32989,"cabra":49647,"cabrito":1579,"capon":82,"cabrilla":112,"total":84409},"Córdoba":{"chivo":14724,"cabra":106825,"cabrito":13689,"capon":32,"cabrilla":138,"total":135408},"Corrientes":{"chivo":9741,"cabra":10616,"cabrito":1695,"capon":143,"cabrilla":304,"total":22499},"Chaco":{"chivo":155465,"cabra":153319,"cabrito":31735,"capon":1014,"cabrilla":924,"total":342457},"Chubut":{"chivo":123013,"cabra":15462,"cabrito":5465,"capon":258,"cabrilla":981,"total":145179},"Entre Ríos":{"chivo":3994,"cabra":8677,"cabrito":4210,"capon":22,"cabrilla":621,"total":17524},"Formosa":{"chivo":50063,"cabra":128034,"cabrito":27063,"capon":4749,"cabrilla":7955,"total":217864},"Jujuy":{"chivo":65338,"cabra":17588,"cabrito":5317,"capon":1408,"cabrilla":2299,"total":91950},"La Pampa":{"chivo":20551,"cabra":49825,"cabrito":10499,"capon":521,"cabrilla":566,"total":81962},"La Rioja":{"chivo":29785,"cabra":67640,"cabrito":13424,"capon":100,"cabrilla":189,"total":111138},"Mendoza":{"chivo":132256,"cabra":454817,"cabrito":87703,"capon":5660,"cabrilla":17917,"total":698353},"Misiones":{"chivo":672,"cabra":1751,"cabrito":88,"capon":60,"cabrilla":106,"total":2677},"Neuquén":{"chivo":612761,"cabra":242113,"cabrito":14841,"capon":1503,"cabrilla":69617,"total":940835},"Río Negro":{"chivo":116026,"cabra":70103,"cabrito":21471,"capon":1475,"cabrilla":4345,"total":213420},"Salta":{"chivo":144606,"cabra":128504,"cabrito":38894,"capon":4040,"cabrilla":5509,"total":321553},"San Juan":{"chivo":7151,"cabra":26708,"cabrito":3739,"capon":0,"cabrilla":0,"total":37598},"San Luis":{"chivo":11734,"cabra":60875,"cabrito":7420,"capon":931,"cabrilla":795,"total":81755},"Santa Cruz":{"chivo":1147,"cabra":0,"cabrito":0,"capon":0,"cabrilla":0,"total":1147},"Santa Fe":{"chivo":14749,"cabra":35582,"cabrito":4374,"capon":141,"cabrilla":308,"total":55154},"Santiago del Estero":{"chivo":97082,"cabra":244908,"cabrito":48461,"capon":1208,"cabrilla":5688,"total":397347},"Tucumán":{"chivo":4790,"cabra":5900,"cabrito":193,"capon":63,"cabrilla":66,"total":11012}},"2011":{"Buenos Aires":{"chivo":5340,"cabra":8157,"cabrito":2395,"capon":500,"cabrilla":397,"total":16789},"CABA":{"chivo":16,"cabra":0,"cabrito":0,"capon":0,"cabrilla":0,"total":16},"Catamarca":{"chivo":38340,"cabra":61896,"cabrito":3712,"capon":100,"cabrilla":332,"total":104380},"Chaco":{"chivo":156041,"cabra":170700,"cabrito":35501,"capon":630,"cabrilla":1731,"total":364603},"Chubut":{"chivo":124475,"cabra":17888,"cabrito":5774,"capon":350,"cabrilla":1418,"total":149905},"Córdoba":{"chivo":15558,"cabra":99082,"cabrito":13548,"capon":63,"cabrilla":296,"total":128547},"Corrientes":{"chivo":10321,"cabra":10604,"cabrito":2106,"capon":380,"cabrilla":615,"total":24026},"Entre Ríos":{"chivo":3373,"cabra":8459,"cabrito":3697,"capon":72,"cabrilla":302,"total":15903},"Formosa":{"chivo":46115,"cabra":143356,"cabrito":32770,"capon":6665,"cabrilla":10554,"total":239460},"Jujuy":{"chivo":63499,"cabra":20165,"cabrito":6313,"capon":1948,"cabrilla":3660,"total":95585},"La Pampa":{"chivo":17844,"cabra":54204,"cabrito":9526,"capon":157,"cabrilla":838,"total":82569},"La Rioja":{"chivo":54534,"cabra":78342,"cabrito":15015,"capon":100,"cabrilla":365,"total":148356},"Mendoza":{"chivo":217392,"cabra":459187,"cabrito":138216,"capon":11898,"cabrilla":32750,"total":859443},"Misiones":{"chivo":619,"cabra":1826,"cabrito":33,"capon":56,"cabrilla":75,"total":2609},"Neuquén":{"chivo":498658,"cabra":294922,"cabrito":16741,"capon":2007,"cabrilla":89724,"total":902052},"Río Negro":{"chivo":113512,"cabra":73001,"cabrito":23677,"capon":2474,"cabrilla":8117,"total":220781},"Salta":{"chivo":116610,"cabra":121668,"cabrito":40667,"capon":4296,"cabrilla":6259,"total":289500},"San Juan":{"chivo":16168,"cabra":27633,"cabrito":3942,"capon":0,"cabrilla":19,"total":47762},"San Luis":{"chivo":10827,"cabra":63139,"cabrito":6578,"capon":1297,"cabrilla":1342,"total":83183},"Santa Cruz":{"chivo":1103,"cabra":1,"cabrito":0,"capon":0,"cabrilla":0,"total":1104},"Santa Fe":{"chivo":13342,"cabra":40953,"cabrito":3606,"capon":232,"cabrilla":944,"total":59077},"Santiago del Estero":{"chivo":93902,"cabra":256393,"cabrito":51678,"capon":1297,"cabrilla":5684,"total":408954},"Tucumán":{"chivo":5174,"cabra":6391,"cabrito":304,"capon":105,"cabrilla":138,"total":12112}},"2012":{"Buenos Aires":{"chivo":5359,"cabra":11156,"cabrito":3418,"capon":641,"cabrilla":1169,"total":21743},"CABA":{"chivo":3,"cabra":3,"cabrito":0,"capon":0,"cabrilla":0,"total":6},"Catamarca":{"chivo":26197,"cabra":43793,"cabrito":4418,"capon":289,"cabrilla":366,"total":75063},"Chaco":{"chivo":128415,"cabra":199312,"cabrito":46037,"capon":2112,"cabrilla":4350,"total":380226},"Chubut":{"chivo":115409,"cabra":21805,"cabrito":5647,"capon":1619,"cabrilla":2657,"total":147137},"Córdoba":{"chivo":14538,"cabra":97584,"cabrito":16956,"capon":156,"cabrilla":607,"total":129841},"Corrientes":{"chivo":10594,"cabra":14817,"cabrito":2918,"capon":414,"cabrilla":991,"total":29734},"Entre Ríos":{"chivo":3567,"cabra":10604,"cabrito":5224,"capon":80,"cabrilla":318,"total":19793},"Formosa":{"chivo":37111,"cabra":143691,"cabrito":26944,"capon":4193,"cabrilla":9069,"total":221008},"Jujuy":{"chivo":59801,"cabra":19319,"cabrito":5639,"capon":2001,"cabrilla":4060,"total":90820},"La Pampa":{"chivo":13680,"cabra":51713,"cabrito":11632,"capon":415,"cabrilla":1202,"total":78642},"La Rioja":{"chivo":43232,"cabra":85827,"cabrito":17757,"capon":100,"cabrilla":390,"total":147306},"Mendoza":{"chivo":124508,"cabra":482537,"cabrito":155877,"capon":18051,"cabrilla":54850,"total":835823},"Misiones":{"chivo":526,"cabra":2036,"cabrito":229,"capon":72,"cabrilla":147,"total":3010},"Neuquén":{"chivo":428307,"cabra":315326,"cabrito":21814,"capon":1536,"cabrilla":102229,"total":869212},"Río Negro":{"chivo":120795,"cabra":74597,"cabrito":21330,"capon":2173,"cabrilla":7888,"total":226783},"Salta":{"chivo":124818,"cabra":135114,"cabrito":49221,"capon":3937,"cabrilla":5885,"total":318975},"San Juan":{"chivo":16225,"cabra":29190,"cabrito":4024,"capon":20,"cabrilla":496,"total":49955},"San Luis":{"chivo":11504,"cabra":71185,"cabrito":7559,"capon":1535,"cabrilla":1720,"total":93503},"Santa Cruz":{"chivo":1035,"cabra":3,"cabrito":0,"capon":0,"cabrilla":2,"total":1040},"Santa Fe":{"chivo":13890,"cabra":53065,"cabrito":4695,"capon":503,"cabrilla":1716,"total":73869},"Santiago del Estero":{"chivo":83833,"cabra":273485,"cabrito":57082,"capon":2243,"cabrilla":10559,"total":427202},"Tucumán":{"chivo":4578,"cabra":6644,"cabrito":453,"capon":135,"cabrilla":322,"total":12132}},"2013":{"Buenos Aires":{"chivo":7627,"cabra":15609,"cabrito":6532,"capon":755,"cabrilla":2710,"total":33233},"CABA":{"chivo":2,"cabra":3,"cabrito":0,"capon":0,"cabrilla":0,"total":5},"Catamarca":{"chivo":26239,"cabra":53943,"cabrito":5755,"capon":317,"cabrilla":576,"total":86830},"Chaco":{"chivo":122265,"cabra":268375,"cabrito":64892,"capon":6768,"cabrilla":17453,"total":479753},"Chubut":{"chivo":95962,"cabra":29786,"cabrito":7253,"capon":2974,"cabrilla":2944,"total":138919},"Córdoba":{"chivo":13666,"cabra":103453,"cabrito":24794,"capon":318,"cabrilla":2857,"total":145088},"Corrientes":{"chivo":13478,"cabra":19793,"cabrito":4268,"capon":610,"cabrilla":1861,"total":40010},"Entre Ríos":{"chivo":4119,"cabra":13241,"cabrito":6059,"capon":80,"cabrilla":315,"total":23814},"Formosa":{"chivo":33738,"cabra":154171,"cabrito":29930,"capon":5532,"cabrilla":14563,"total":237934},"Jujuy":{"chivo":56359,"cabra":27270,"cabrito":7353,"capon":3355,"cabrilla":7339,"total":101676},"La Pampa":{"chivo":12425,"cabra":56818,"cabrito":16320,"capon":951,"cabrilla":4215,"total":90729},"La Rioja":{"chivo":26143,"cabra":90150,"cabrito":24450,"capon":140,"cabrilla":566,"total":141449},"Mendoza":{"chivo":84100,"cabra":458255,"cabrito":158225,"capon":19028,"cabrilla":56561,"total":776169},"Misiones":{"chivo":629,"cabra":2542,"cabrito":296,"capon":81,"cabrilla":318,"total":3866},"Neuquén":{"chivo":166797,"cabra":343641,"cabrito":28009,"capon":3620,"cabrilla":113423,"total":655490},"Río Negro":{"chivo":64827,"cabra":78071,"cabrito":16717,"capon":2946,"cabrilla":7741,"total":170302},"Salta":{"chivo":108134,"cabra":150629,"cabrito":56731,"capon":4583,"cabrilla":7493,"total":327570},"San Juan":{"chivo":16147,"cabra":29058,"cabrito":4069,"capon":20,"cabrilla":752,"total":50046},"San Luis":{"chivo":12834,"cabra":75491,"cabrito":8891,"capon":1443,"cabrilla":1974,"total":100633},"Santa Cruz":{"chivo":730,"cabra":91,"cabrito":33,"capon":13,"cabrilla":22,"total":889},"Santa Fe":{"chivo":14197,"cabra":61474,"cabrito":6846,"capon":855,"cabrilla":3093,"total":86465},"Santiago del Estero":{"chivo":74467,"cabra":329216,"cabrito":101947,"capon":6339,"cabrilla":23770,"total":535739},"Tucumán":{"chivo":4002,"cabra":6846,"cabrito":439,"capon":128,"cabrilla":346,"total":11761}},"2014":{"Buenos Aires":{"chivo":9016,"cabra":18790,"cabrito":6557,"capon":1057,"cabrilla":6027,"total":41447},"CABA":{"chivo":2,"cabra":22,"cabrito":0,"capon":0,"cabrilla":0,"total":24},"Catamarca":{"chivo":25694,"cabra":59723,"cabrito":6062,"capon":408,"cabrilla":980,"total":92867},"Chaco":{"chivo":112530,"cabra":315069,"cabrito":71629,"capon":7761,"cabrilla":23844,"total":530833},"Chubut":{"chivo":80315,"cabra":35140,"cabrito":7585,"capon":3661,"cabrilla":4496,"total":131197},"Córdoba":{"chivo":13719,"cabra":107847,"cabrito":27596,"capon":430,"cabrilla":3083,"total":152675},"Corrientes":{"chivo":14939,"cabra":21433,"cabrito":5115,"capon":804,"cabrilla":2163,"total":44454},"Entre Ríos":{"chivo":4048,"cabra":14376,"cabrito":7448,"capon":80,"cabrilla":315,"total":26267},"Formosa":{"chivo":36450,"cabra":163239,"cabrito":30974,"capon":6202,"cabrilla":16263,"total":253128},"Jujuy":{"chivo":55451,"cabra":33656,"cabrito":8782,"capon":4573,"cabrilla":9587,"total":112049},"La Pampa":{"chivo":11340,"cabra":55759,"cabrito":16253,"capon":886,"cabrilla":4325,"total":88563},"La Rioja":{"chivo":25181,"cabra":92646,"cabrito":25184,"capon":140,"cabrilla":626,"total":143777},"Mendoza":{"chivo":85167,"cabra":454506,"cabrito":162277,"capon":19095,"cabrilla":57734,"total":778779},"Misiones":{"chivo":628,"cabra":2453,"cabrito":358,"capon":82,"cabrilla":303,"total":3824},"Neuquén":{"chivo":124723,"cabra":349667,"cabrito":23256,"capon":5321,"cabrilla":121455,"total":624422},"Río Negro":{"chivo":42260,"cabra":91114,"cabrito":17114,"capon":4266,"cabrilla":10525,"total":165279},"Salta":{"chivo":100467,"cabra":159672,"cabrito":61216,"capon":5486,"cabrilla":9190,"total":336031},"San Juan":{"chivo":15768,"cabra":29441,"cabrito":4296,"capon":47,"cabrilla":1046,"total":50598},"San Luis":{"chivo":11981,"cabra":77608,"cabrito":10971,"capon":1664,"cabrilla":2133,"total":104357},"Santa Cruz":{"chivo":732,"cabra":91,"cabrito":38,"capon":3,"cabrilla":22,"total":886},"Santa Fe":{"chivo":13740,"cabra":62162,"cabrito":8556,"capon":1158,"cabrilla":4439,"total":90055},"Santiago del Estero":{"chivo":70058,"cabra":348283,"cabrito":140879,"capon":9892,"cabrilla":38367,"total":607479},"Tucumán":{"chivo":3850,"cabra":7520,"cabrito":544,"capon":191,"cabrilla":454,"total":12559}},"2015":{"Buenos Aires":{"chivo":11025,"cabra":23978,"cabrito":11814,"capon":1501,"cabrilla":10272,"total":58590},"CABA":{"chivo":71,"cabra":99,"cabrito":0,"capon":0,"cabrilla":0,"total":170},"Catamarca":{"chivo":24146,"cabra":64945,"cabrito":5750,"capon":385,"cabrilla":955,"total":96181},"Chaco":{"chivo":106175,"cabra":322667,"cabrito":77187,"capon":9256,"cabrilla":26843,"total":542128},"Chubut":{"chivo":69781,"cabra":41152,"cabrito":8618,"capon":3628,"cabrilla":7461,"total":130640},"Córdoba":{"chivo":13645,"cabra":108886,"cabrito":36514,"capon":585,"cabrilla":3592,"total":163222},"Corrientes":{"chivo":29416,"cabra":21591,"cabrito":5084,"capon":815,"cabrilla":2290,"total":59196},"Entre Ríos":{"chivo":4348,"cabra":14881,"cabrito":7783,"capon":80,"cabrilla":326,"total":27418},"Formosa":{"chivo":35177,"cabra":165985,"cabrito":30035,"capon":8133,"cabrilla":17556,"total":256886},"Jujuy":{"chivo":45845,"cabra":39400,"cabrito":9222,"capon":5945,"cabrilla":12569,"total":112981},"La Pampa":{"chivo":10658,"cabra":55689,"cabrito":16753,"capon":1181,"cabrilla":4632,"total":88913},"La Rioja":{"chivo":23872,"cabra":103361,"cabrito":30022,"capon":146,"cabrilla":706,"total":158107},"Mendoza":{"chivo":81967,"cabra":464130,"cabrito":167069,"capon":21643,"cabrilla":69330,"total":804139},"Misiones":{"chivo":673,"cabra":2515,"cabrito":344,"capon":82,"cabrilla":320,"total":3934},"Neuquén":{"chivo":100230,"cabra":490805,"cabrito":29076,"capon":12139,"cabrilla":204479,"total":836729},"Río Negro":{"chivo":33185,"cabra":90131,"cabrito":16264,"capon":4411,"cabrilla":14020,"total":158011},"Salta":{"chivo":93355,"cabra":166153,"cabrito":65845,"capon":6272,"cabrilla":10523,"total":342148},"San Juan":{"chivo":15573,"cabra":29964,"cabrito":4336,"capon":49,"cabrilla":1040,"total":50962},"San Luis":{"chivo":12310,"cabra":78288,"cabrito":13609,"capon":1626,"cabrilla":2391,"total":108224},"Santa Cruz":{"chivo":734,"cabra":131,"cabrito":78,"capon":3,"cabrilla":12,"total":958},"Santa Fe":{"chivo":13863,"cabra":61832,"cabrito":13972,"capon":2003,"cabrilla":6705,"total":98375},"Santiago del Estero":{"chivo":67332,"cabra":343731,"cabrito":144111,"capon":10412,"cabrilla":42777,"total":608363},"Tucumán":{"chivo":3470,"cabra":8413,"cabrito":1234,"capon":281,"cabrilla":1001,"total":14399}},"2016":{"Buenos Aires":{"chivo":12651,"cabra":27487,"cabrito":17533,"capon":1721,"cabrilla":15857,"total":75249},"CABA":{"chivo":80,"cabra":96,"cabrito":3,"capon":0,"cabrilla":0,"total":179},"Catamarca":{"chivo":23957,"cabra":65245,"cabrito":7333,"capon":425,"cabrilla":1050,"total":98010},"Chaco":{"chivo":101125,"cabra":326572,"cabrito":86806,"capon":12925,"cabrilla":35391,"total":562819},"Chubut":{"chivo":53711,"cabra":49844,"cabrito":12291,"capon":4701,"cabrilla":11048,"total":131595},"Córdoba":{"chivo":13578,"cabra":113186,"cabrito":49140,"capon":656,"cabrilla":4714,"total":181274},"Corrientes":{"chivo":16208,"cabra":25167,"cabrito":6443,"capon":1250,"cabrilla":4994,"total":54062},"Entre Ríos":{"chivo":4577,"cabra":16120,"cabrito":8697,"capon":81,"cabrilla":351,"total":29826},"Formosa":{"chivo":33026,"cabra":164777,"cabrito":30642,"capon":7767,"cabrilla":19399,"total":255611},"Jujuy":{"chivo":42885,"cabra":41927,"cabrito":10520,"capon":6321,"cabrilla":13011,"total":114664},"La Pampa":{"chivo":10471,"cabra":54905,"cabrito":16316,"capon":1323,"cabrilla":5235,"total":88250},"La Rioja":{"chivo":24945,"cabra":105784,"cabrito":30053,"capon":146,"cabrilla":688,"total":161616},"Mendoza":{"chivo":67657,"cabra":439306,"cabrito":150800,"capon":22472,"cabrilla":75098,"total":755333},"Misiones":{"chivo":699,"cabra":2307,"cabrito":598,"capon":151,"cabrilla":350,"total":4105},"Neuquén":{"chivo":89854,"cabra":519554,"cabrito":29640,"capon":17029,"cabrilla":186631,"total":842708},"Río Negro":{"chivo":31924,"cabra":96119,"cabrito":18885,"capon":5030,"cabrilla":17515,"total":169473},"Salta":{"chivo":92071,"cabra":164833,"cabrito":65922,"capon":6466,"cabrilla":11352,"total":340644},"San Juan":{"chivo":15618,"cabra":29969,"cabrito":4336,"capon":49,"cabrilla":1049,"total":51021},"San Luis":{"chivo":12305,"cabra":79582,"cabrito":14473,"capon":1731,"cabrilla":2861,"total":110952},"Santa Cruz":{"chivo":747,"cabra":183,"cabrito":30,"capon":4,"cabrilla":12,"total":976},"Santa Fe":{"chivo":13392,"cabra":62222,"cabrito":16312,"capon":2585,"cabrilla":7535,"total":102046},"Santiago del Estero":{"chivo":62991,"cabra":333553,"cabrito":120272,"capon":10517,"cabrilla":39661,"total":566994},"Tucumán":{"chivo":3248,"cabra":8620,"cabrito":1343,"capon":419,"cabrilla":1136,"total":14766}},"2017":{"Buenos Aires":{"chivo":10035,"cabra":26331,"cabrito":14482,"capon":1531,"cabrilla":10286,"total":62665},"Catamarca":{"chivo":24678,"cabra":80855,"cabrito":9461,"capon":1127,"cabrilla":6448,"total":122569},"Chaco":{"chivo":94815,"cabra":331979,"cabrito":102245,"capon":16262,"cabrilla":40961,"total":586262},"Chubut":{"chivo":47374,"cabra":53811,"cabrito":11992,"capon":5118,"cabrilla":12183,"total":130478},"Córdoba":{"chivo":13893,"cabra":114776,"cabrito":54240,"capon":974,"cabrilla":5431,"total":189314},"Corrientes":{"chivo":13413,"cabra":26461,"cabrito":7271,"capon":1602,"cabrilla":6186,"total":54933},"Entre Ríos":{"chivo":4479,"cabra":17107,"cabrito":9287,"capon":81,"cabrilla":359,"total":31313},"Formosa":{"chivo":30019,"cabra":159474,"cabrito":30335,"capon":8333,"cabrilla":18518,"total":246679},"Jujuy":{"chivo":37484,"cabra":46461,"cabrito":10262,"capon":6361,"cabrilla":15982,"total":116550},"La Pampa":{"chivo":10206,"cabra":53934,"cabrito":16943,"capon":1278,"cabrilla":5403,"total":87764},"La Rioja":{"chivo":24098,"cabra":109421,"cabrito":30295,"capon":146,"cabrilla":699,"total":164659},"Mendoza":{"chivo":62805,"cabra":441666,"cabrito":148741,"capon":24845,"cabrilla":80503,"total":758560},"Misiones":{"chivo":780,"cabra":2365,"cabrito":478,"capon":148,"cabrilla":410,"total":4181},"Neuquén":{"chivo":82084,"cabra":561081,"cabrito":37079,"capon":15732,"cabrilla":239843,"total":935819},"Río Negro":{"chivo":30468,"cabra":98638,"cabrito":18209,"capon":5055,"cabrilla":20200,"total":172570},"Salta":{"chivo":90560,"cabra":168721,"cabrito":69726,"capon":7041,"cabrilla":12428,"total":348476},"San Juan":{"chivo":15377,"cabra":31722,"cabrito":4359,"capon":52,"cabrilla":1060,"total":52570},"San Luis":{"chivo":12031,"cabra":80110,"cabrito":14392,"capon":1911,"cabrilla":3089,"total":111533},"Santa Cruz":{"chivo":282,"cabra":183,"cabrito":30,"capon":4,"cabrilla":62,"total":561},"Santa Fe":{"chivo":13147,"cabra":60404,"cabrito":17490,"capon":2767,"cabrilla":8251,"total":102059},"Santiago del Estero":{"chivo":60230,"cabra":339446,"cabrito":117164,"capon":10130,"cabrilla":41952,"total":568922},"Tucumán":{"chivo":3100,"cabra":9246,"cabrito":1362,"capon":458,"cabrilla":1291,"total":15457}},"2018":{"Buenos Aires":{"chivo":10200,"cabra":29906,"cabrito":20102,"capon":1704,"cabrilla":15604,"total":77516},"CABA":{"chivo":79,"cabra":110,"cabrito":3,"capon":0,"cabrilla":0,"total":192},"Catamarca":{"chivo":25000,"cabra":80913,"cabrito":8553,"capon":1157,"cabrilla":6116,"total":121739},"Chaco":{"chivo":94097,"cabra":334280,"cabrito":108947,"capon":17992,"cabrilla":44048,"total":599364},"Chubut":{"chivo":41921,"cabra":56657,"cabrito":12523,"capon":5635,"cabrilla":13706,"total":130442},"Córdoba":{"chivo":14179,"cabra":117191,"cabrito":55133,"capon":1131,"cabrilla":7218,"total":194852},"Corrientes":{"chivo":11998,"cabra":25647,"cabrito":7589,"capon":1801,"cabrilla":6412,"total":53447},"Entre Ríos":{"chivo":4721,"cabra":18511,"cabrito":9337,"capon":74,"cabrilla":480,"total":33123},"Formosa":{"chivo":28599,"cabra":154878,"cabrito":31040,"capon":8463,"cabrilla":18239,"total":241219},"Jujuy":{"chivo":37472,"cabra":45787,"cabrito":9594,"capon":6212,"cabrilla":16343,"total":115408},"La Pampa":{"chivo":10185,"cabra":53752,"cabrito":16937,"capon":1172,"cabrilla":5124,"total":87170},"La Rioja":{"chivo":23564,"cabra":104444,"cabrito":30663,"capon":251,"cabrilla":943,"total":159865},"Mendoza":{"chivo":61507,"cabra":444657,"cabrito":143331,"capon":25258,"cabrilla":85365,"total":760118},"Misiones":{"chivo":781,"cabra":2411,"cabrito":525,"capon":143,"cabrilla":441,"total":4301},"Neuquén":{"chivo":12616,"cabra":493327,"cabrito":31009,"capon":13415,"cabrilla":172924,"total":723291},"Río Negro":{"chivo":3727,"cabra":70145,"cabrito":10663,"capon":3786,"cabrilla":19761,"total":108082},"Salta":{"chivo":89241,"cabra":169051,"cabrito":70918,"capon":7733,"cabrilla":13873,"total":350816},"San Juan":{"chivo":14904,"cabra":32094,"cabrito":4369,"capon":54,"cabrilla":1195,"total":52616},"San Luis":{"chivo":10688,"cabra":80041,"cabrito":14692,"capon":1955,"cabrilla":3320,"total":110696},"Santa Cruz":{"chivo":285,"cabra":177,"cabrito":27,"capon":4,"cabrilla":62,"total":555},"Santa Fe":{"chivo":12920,"cabra":58614,"cabrito":17507,"capon":3098,"cabrilla":8771,"total":100910},"Santiago del Estero":{"chivo":59603,"cabra":341457,"cabrito":120581,"capon":10651,"cabrilla":42742,"total":575034},"Tucumán":{"chivo":3121,"cabra":10221,"cabrito":1708,"capon":605,"cabrilla":1542,"total":17197}},"2019":{"Buenos Aires":{"chivo":9847,"cabra":31058,"cabrito":22505,"capon":2438,"cabrilla":17549,"total":83397},"CABA":{"chivo":4,"cabra":22,"cabrito":0,"capon":0,"cabrilla":0,"total":26},"Catamarca":{"chivo":24539,"cabra":80762,"cabrito":8758,"capon":1321,"cabrilla":6146,"total":121526},"Chaco":{"chivo":91638,"cabra":335972,"cabrito":113079,"capon":18531,"cabrilla":47169,"total":606389},"Chubut":{"chivo":36394,"cabra":55793,"cabrito":12345,"capon":6062,"cabrilla":13306,"total":123900},"Córdoba":{"chivo":13961,"cabra":119757,"cabrito":53019,"capon":1135,"cabrilla":10301,"total":198173},"Corrientes":{"chivo":11611,"cabra":26282,"cabrito":8428,"capon":1986,"cabrilla":7030,"total":55337},"Entre Ríos":{"chivo":4915,"cabra":19433,"cabrito":10374,"capon":74,"cabrilla":439,"total":35235},"Formosa":{"chivo":27578,"cabra":156500,"cabrito":30721,"capon":8403,"cabrilla":17434,"total":240636},"Jujuy":{"chivo":37099,"cabra":45396,"cabrito":9564,"capon":6387,"cabrilla":16302,"total":114748},"La Pampa":{"chivo":10272,"cabra":53449,"cabrito":17650,"capon":1227,"cabrilla":5102,"total":87700},"La Rioja":{"chivo":23166,"cabra":103924,"cabrito":31533,"capon":282,"cabrilla":1355,"total":160260},"Mendoza":{"chivo":60551,"cabra":446067,"cabrito":131656,"capon":26580,"cabrilla":81896,"total":746750},"Misiones":{"chivo":739,"cabra":2475,"cabrito":526,"capon":152,"cabrilla":454,"total":4346},"Neuquén":{"chivo":12621,"cabra":489543,"cabrito":33383,"capon":14916,"cabrilla":193700,"total":744163},"Río Negro":{"chivo":3465,"cabra":75837,"cabrito":11079,"capon":4136,"cabrilla":20918,"total":115435},"Salta":{"chivo":88199,"cabra":167612,"cabrito":69708,"capon":7716,"cabrilla":13217,"total":346452},"San Juan":{"chivo":14908,"cabra":33436,"cabrito":4445,"capon":59,"cabrilla":1211,"total":54059},"San Luis":{"chivo":11693,"cabra":79623,"cabrito":14529,"capon":2020,"cabrilla":3365,"total":111230},"Santa Cruz":{"chivo":288,"cabra":241,"cabrito":9,"capon":4,"cabrilla":92,"total":634},"Santa Fe":{"chivo":12693,"cabra":58685,"cabrito":18777,"capon":3276,"cabrilla":9853,"total":103284},"Santiago del Estero":{"chivo":58351,"cabra":338307,"cabrito":117212,"capon":11943,"cabrilla":42092,"total":567905},"Tucumán":{"chivo":3103,"cabra":10006,"cabrito":1836,"capon":624,"cabrilla":1481,"total":17050}},"2020":{"Buenos Aires":{"chivo":10015,"cabra":32387,"cabrito":24915,"capon":1733,"cabrilla":18237,"total":87287},"CABA":{"chivo":4,"cabra":10,"cabrito":0,"capon":0,"cabrilla":0,"total":14},"Catamarca":{"chivo":24997,"cabra":80982,"cabrito":9615,"capon":1328,"cabrilla":6405,"total":123327},"Chaco":{"chivo":89877,"cabra":321486,"cabrito":109370,"capon":18252,"cabrilla":47580,"total":586565},"Chubut":{"chivo":33259,"cabra":57603,"cabrito":12902,"capon":5945,"cabrilla":16102,"total":125811},"Córdoba":{"chivo":13945,"cabra":120269,"cabrito":58064,"capon":1158,"cabrilla":11185,"total":204621},"Corrientes":{"chivo":11260,"cabra":26475,"cabrito":8924,"capon":2135,"cabrilla":7201,"total":55995},"Entre Ríos":{"chivo":5084,"cabra":20301,"cabrito":10993,"capon":74,"cabrilla":437,"total":36889},"Formosa":{"chivo":26824,"cabra":154241,"cabrito":29669,"capon":8442,"cabrilla":17265,"total":236441},"Jujuy":{"chivo":36683,"cabra":45700,"cabrito":9463,"capon":6413,"cabrilla":17343,"total":115602},"La Pampa":{"chivo":10249,"cabra":53509,"cabrito":17981,"capon":1172,"cabrilla":4943,"total":87854},"La Rioja":{"chivo":22719,"cabra":102402,"cabrito":31492,"capon":287,"cabrilla":1326,"total":158226},"Mendoza":{"chivo":59757,"cabra":447047,"cabrito":127881,"capon":26399,"cabrilla":81329,"total":742413},"Misiones":{"chivo":749,"cabra":2648,"cabrito":607,"capon":158,"cabrilla":655,"total":4817},"Neuquén":{"chivo":13233,"cabra":536863,"cabrito":58317,"capon":15131,"cabrilla":202571,"total":826115},"Río Negro":{"chivo":3567,"cabra":79651,"cabrito":10930,"capon":4294,"cabrilla":22499,"total":120941},"Salta":{"chivo":87745,"cabra":162389,"cabrito":67158,"capon":7793,"cabrilla":13747,"total":338832},"San Juan":{"chivo":14997,"cabra":36093,"cabrito":4338,"capon":59,"cabrilla":1176,"total":56663},"San Luis":{"chivo":11920,"cabra":80466,"cabrito":15187,"capon":2049,"cabrilla":4117,"total":113739},"Santa Cruz":{"chivo":287,"cabra":183,"cabrito":7,"capon":4,"cabrilla":92,"total":573},"Santa Fe":{"chivo":12315,"cabra":55440,"cabrito":17236,"capon":3131,"cabrilla":9112,"total":97234},"Santiago del Estero":{"chivo":58147,"cabra":327782,"cabrito":115978,"capon":15594,"cabrilla":40862,"total":558363},"Tucumán":{"chivo":3302,"cabra":9975,"cabrito":2023,"capon":653,"cabrilla":1555,"total":17508}},"2021":{"Buenos Aires":{"chivo":8085,"cabra":27380,"cabrito":20403,"capon":1366,"cabrilla":10580,"total":67814},"CABA":{"chivo":4,"cabra":10,"cabrito":0,"capon":0,"cabrilla":0,"total":14},"Catamarca":{"chivo":22558,"cabra":74696,"cabrito":9666,"capon":1327,"cabrilla":6197,"total":114444},"Chaco":{"chivo":77444,"cabra":303516,"cabrito":100684,"capon":17817,"cabrilla":42723,"total":542184},"Chubut":{"chivo":9689,"cabra":46101,"cabrito":9120,"capon":4424,"cabrilla":14902,"total":84236},"Córdoba":{"chivo":13013,"cabra":114724,"cabrito":53321,"capon":1153,"cabrilla":10183,"total":192394},"Corrientes":{"chivo":10827,"cabra":26856,"cabrito":9338,"capon":2104,"cabrilla":7191,"total":56316},"Entre Ríos":{"chivo":5357,"cabra":21184,"cabrito":11346,"capon":74,"cabrilla":498,"total":38459},"Formosa":{"chivo":25154,"cabra":145186,"cabrito":25175,"capon":6834,"cabrilla":14423,"total":216772},"Jujuy":{"chivo":35633,"cabra":44476,"cabrito":8531,"capon":6766,"cabrilla":17942,"total":113348},"La Pampa":{"chivo":10096,"cabra":51179,"cabrito":15717,"capon":956,"cabrilla":3704,"total":81652},"La Rioja":{"chivo":21332,"cabra":96708,"cabrito":31824,"capon":293,"cabrilla":1187,"total":151344},"Mendoza":{"chivo":54798,"cabra":433742,"cabrito":115636,"capon":23992,"cabrilla":67190,"total":695358},"Misiones":{"chivo":692,"cabra":2634,"cabrito":829,"capon":162,"cabrilla":692,"total":5009},"Neuquén":{"chivo":12263,"cabra":500309,"cabrito":55032,"capon":14499,"cabrilla":169750,"total":751853},"Río Negro":{"chivo":3099,"cabra":71686,"cabrito":10585,"capon":3665,"cabrilla":18504,"total":107539},"Salta":{"chivo":78220,"cabra":156765,"cabrito":63319,"capon":7159,"cabrilla":13184,"total":318647},"San Juan":{"chivo":15180,"cabra":35472,"cabrito":4457,"capon":59,"cabrilla":1209,"total":56377},"San Luis":{"chivo":10589,"cabra":75075,"cabrito":10855,"capon":921,"cabrilla":2256,"total":99696},"Santa Cruz":{"chivo":60,"cabra":242,"cabrito":14,"capon":10,"cabrilla":86,"total":412},"Santa Fe":{"chivo":10429,"cabra":47997,"cabrito":14102,"capon":2056,"cabrilla":6587,"total":81171},"Santiago del Estero":{"chivo":49866,"cabra":292310,"cabrito":102251,"capon":12933,"cabrilla":34624,"total":491984},"Tucumán":{"chivo":2097,"cabra":8402,"cabrito":1692,"capon":532,"cabrilla":1157,"total":13880}},"2022":{"Buenos Aires":{"chivo":7663,"cabra":26851,"cabrito":21877,"capon":1465,"cabrilla":12368,"total":70224},"Catamarca":{"chivo":22053,"cabra":73346,"cabrito":9599,"capon":1357,"cabrilla":5991,"total":112346},"Chaco":{"chivo":73756,"cabra":296635,"cabrito":95897,"capon":16235,"cabrilla":44630,"total":527153},"Chubut":{"chivo":2786,"cabra":44488,"cabrito":8994,"capon":4606,"cabrilla":13617,"total":74491},"Córdoba":{"chivo":12486,"cabra":114391,"cabrito":51386,"capon":1002,"cabrilla":10868,"total":190133},"Corrientes":{"chivo":10074,"cabra":28148,"cabrito":9638,"capon":2164,"cabrilla":7578,"total":57602},"Entre Ríos":{"chivo":5483,"cabra":22997,"cabrito":13106,"capon":83,"cabrilla":617,"total":42286},"Formosa":{"chivo":23776,"cabra":142935,"cabrito":24131,"capon":6395,"cabrilla":14311,"total":211548},"Jujuy":{"chivo":34387,"cabra":40992,"cabrito":7758,"capon":6443,"cabrilla":17193,"total":106773},"La Pampa":{"chivo":9352,"cabra":51939,"cabrito":15796,"capon":974,"cabrilla":3625,"total":81686},"La Rioja":{"chivo":20590,"cabra":93391,"cabrito":28802,"capon":199,"cabrilla":1306,"total":144288},"Mendoza":{"chivo":50528,"cabra":433017,"cabrito":101100,"capon":20340,"cabrilla":57717,"total":662702},"Misiones":{"chivo":601,"cabra":2174,"cabrito":769,"capon":96,"cabrilla":524,"total":4164},"Neuquén":{"chivo":8577,"cabra":374510,"cabrito":69907,"capon":12111,"cabrilla":90425,"total":555530},"Río Negro":{"chivo":2074,"cabra":51867,"cabrito":8770,"capon":2274,"cabrilla":11865,"total":76850},"Salta":{"chivo":74350,"cabra":154856,"cabrito":61619,"capon":6584,"cabrilla":12082,"total":309491},"San Juan":{"chivo":15246,"cabra":35937,"cabrito":4527,"capon":61,"cabrilla":1210,"total":56981},"San Luis":{"chivo":10078,"cabra":83786,"cabrito":9370,"capon":594,"cabrilla":3068,"total":106896},"Santa Cruz":{"chivo":74,"cabra":198,"cabrito":135,"capon":8,"cabrilla":0,"total":415},"Santa Fe":{"chivo":9385,"cabra":46088,"cabrito":11838,"capon":1753,"cabrilla":7123,"total":76187},"Santiago del Estero":{"chivo":48143,"cabra":289374,"cabrito":95041,"capon":9920,"cabrilla":30833,"total":473311},"Tucumán":{"chivo":2083,"cabra":8471,"cabrito":1573,"capon":549,"cabrilla":1258,"total":13934}},"2023":{"Buenos Aires":{"chivo":7340,"cabra":27112,"cabrito":19457,"capon":1470,"cabrilla":11539,"total":66918},"Catamarca":{"chivo":22283,"cabra":75993,"cabrito":9115,"capon":1355,"cabrilla":6239,"total":114985},"Chaco":{"chivo":76818,"cabra":311500,"cabrito":99036,"capon":14968,"cabrilla":43567,"total":545889},"Chubut":{"chivo":2963,"cabra":49480,"cabrito":10062,"capon":4612,"cabrilla":16046,"total":83163},"Córdoba":{"chivo":12561,"cabra":115513,"cabrito":54680,"capon":916,"cabrilla":11343,"total":195013},"Corrientes":{"chivo":10164,"cabra":30486,"cabrito":10512,"capon":2382,"cabrilla":8338,"total":61882},"Entre Ríos":{"chivo":5939,"cabra":24643,"cabrito":14139,"capon":83,"cabrilla":588,"total":45392},"Formosa":{"chivo":24054,"cabra":150026,"cabrito":24021,"capon":6182,"cabrilla":14957,"total":219240},"Jujuy":{"chivo":32262,"cabra":41506,"cabrito":8334,"capon":6548,"cabrilla":17866,"total":106516},"La Pampa":{"chivo":9214,"cabra":53202,"cabrito":15763,"capon":914,"cabrilla":3838,"total":82931},"La Rioja":{"chivo":20438,"cabra":93848,"cabrito":29517,"capon":198,"cabrilla":1596,"total":145597},"Mendoza":{"chivo":49173,"cabra":411215,"cabrito":113091,"capon":20802,"cabrilla":74011,"total":668292},"Misiones":{"chivo":616,"cabra":2366,"cabrito":603,"capon":95,"cabrilla":624,"total":4304},"Neuquén":{"chivo":10605,"cabra":417592,"cabrito":93054,"capon":12873,"cabrilla":103271,"total":637395},"Río Negro":{"chivo":2941,"cabra":60971,"cabrito":13155,"capon":3072,"cabrilla":13389,"total":93528},"Salta":{"chivo":74885,"cabra":162483,"cabrito":67556,"capon":6115,"cabrilla":12845,"total":323884},"San Juan":{"chivo":15272,"cabra":36402,"cabrito":4534,"capon":61,"cabrilla":1316,"total":57585},"San Luis":{"chivo":9074,"cabra":74443,"cabrito":9351,"capon":662,"cabrilla":2952,"total":96482},"Santa Cruz":{"chivo":74,"cabra":188,"cabrito":107,"capon":8,"cabrilla":0,"total":377},"Santa Fe":{"chivo":9219,"cabra":46151,"cabrito":11638,"capon":1813,"cabrilla":7906,"total":76727},"Santiago del Estero":{"chivo":47961,"cabra":293995,"cabrito":102993,"capon":9253,"cabrilla":31795,"total":485997},"Tucumán":{"chivo":2206,"cabra":8936,"cabrito":1825,"capon":723,"cabrilla":1458,"total":15148}},"2024":{"Buenos Aires":{"chivo":6586,"cabra":26039,"cabrito":19357,"capon":1394,"cabrilla":10802,"total":64178},"Catamarca":{"chivo":21635,"cabra":74388,"cabrito":9123,"capon":1552,"cabrilla":6748,"total":113446},"Chaco":{"chivo":73236,"cabra":311651,"cabrito":94599,"capon":14125,"cabrilla":44512,"total":538123},"Chubut":{"chivo":2897,"cabra":51692,"cabrito":10864,"capon":5194,"cabrilla":17148,"total":87795},"Córdoba":{"chivo":12135,"cabra":112295,"cabrito":59316,"capon":1028,"cabrilla":11407,"total":196181},"Corrientes":{"chivo":9884,"cabra":32124,"cabrito":11240,"capon":2450,"cabrilla":9255,"total":64953},"Entre Ríos":{"chivo":5956,"cabra":25906,"cabrito":14729,"capon":85,"cabrilla":673,"total":47349},"Formosa":{"chivo":22592,"cabra":148428,"cabrito":20080,"capon":5182,"cabrilla":12821,"total":209103},"Jujuy":{"chivo":31224,"cabra":42715,"cabrito":8833,"capon":6546,"cabrilla":17323,"total":106641},"La Pampa":{"chivo":8824,"cabra":51140,"cabrito":15143,"capon":963,"cabrilla":4040,"total":80110},"La Rioja":{"chivo":20072,"cabra":92735,"cabrito":28268,"capon":207,"cabrilla":1571,"total":142853},"Mendoza":{"chivo":48490,"cabra":401748,"cabrito":110533,"capon":21134,"cabrilla":78147,"total":660052},"Misiones":{"chivo":613,"cabra":2185,"cabrito":547,"capon":132,"cabrilla":651,"total":4128},"Neuquén":{"chivo":10659,"cabra":440727,"cabrito":94434,"capon":13998,"cabrilla":103624,"total":663442},"Río Negro":{"chivo":3367,"cabra":66639,"cabrito":15364,"capon":3390,"cabrilla":12703,"total":101463},"Salta":{"chivo":74489,"cabra":166991,"cabrito":70863,"capon":6021,"cabrilla":12780,"total":331144},"San Juan":{"chivo":14378,"cabra":35668,"cabrito":4507,"capon":65,"cabrilla":1342,"total":55960},"San Luis":{"chivo":8663,"cabra":70241,"cabrito":9132,"capon":573,"cabrilla":2671,"total":91280},"Santa Cruz":{"chivo":145,"cabra":221,"cabrito":83,"capon":7,"cabrilla":54,"total":510},"Santa Fe":{"chivo":8652,"cabra":44155,"cabrito":10946,"capon":1629,"cabrilla":7672,"total":73054},"Santiago del Estero":{"chivo":43604,"cabra":288010,"cabrito":102957,"capon":8238,"cabrilla":32536,"total":475345},"Tucumán":{"chivo":1937,"cabra":8724,"cabrito":1779,"capon":764,"cabrilla":1532,"total":14736}},"2025":{"Buenos Aires":{"chivo":6343,"cabra":23550,"cabrito":17771,"capon":1310,"cabrilla":8722,"total":57696},"Catamarca":{"chivo":21834,"cabra":74422,"cabrito":10083,"capon":1561,"cabrilla":6872,"total":114772},"Chaco":{"chivo":74054,"cabra":319132,"cabrito":97791,"capon":14404,"cabrilla":46668,"total":552049},"Chubut":{"chivo":3182,"cabra":53419,"cabrito":10195,"capon":5750,"cabrilla":16989,"total":89535},"CABA":{"chivo":0,"cabra":1,"cabrito":0,"capon":0,"cabrilla":0,"total":1},"Córdoba":{"chivo":12274,"cabra":112421,"cabrito":61487,"capon":1307,"cabrilla":11438,"total":198927},"Corrientes":{"chivo":9612,"cabra":32394,"cabrito":11374,"capon":2570,"cabrilla":8974,"total":64924},"Entre Ríos":{"chivo":6358,"cabra":27160,"cabrito":15246,"capon":86,"cabrilla":623,"total":49473},"Formosa":{"chivo":21797,"cabra":152878,"cabrito":20406,"capon":5123,"cabrilla":13439,"total":213643},"Jujuy":{"chivo":28205,"cabra":42527,"cabrito":9071,"capon":6770,"cabrilla":17376,"total":103949},"La Pampa":{"chivo":8645,"cabra":50445,"cabrito":15894,"capon":1089,"cabrilla":4109,"total":80182},"La Rioja":{"chivo":20250,"cabra":92991,"cabrito":29298,"capon":214,"cabrilla":1586,"total":144339},"Mendoza":{"chivo":47753,"cabra":399240,"cabrito":111919,"capon":21813,"cabrilla":79925,"total":660650},"Misiones":{"chivo":576,"cabra":2048,"cabrito":459,"capon":74,"cabrilla":479,"total":3636},"Neuquén":{"chivo":11458,"cabra":468725,"cabrito":80464,"capon":15165,"cabrilla":121596,"total":697408},"Río Negro":{"chivo":3436,"cabra":69141,"cabrito":16061,"capon":3339,"cabrilla":12891,"total":104868},"Salta":{"chivo":74463,"cabra":168294,"cabrito":73911,"capon":6124,"cabrilla":15055,"total":337847},"San Juan":{"chivo":14832,"cabra":35823,"cabrito":4569,"capon":65,"cabrilla":1342,"total":56631},"San Luis":{"chivo":8377,"cabra":69751,"cabrito":8584,"capon":539,"cabrilla":2420,"total":89671},"Santa Cruz":{"chivo":143,"cabra":289,"cabrito":83,"capon":7,"cabrilla":85,"total":607},"Santa Fe":{"chivo":8058,"cabra":40667,"cabrito":9532,"capon":1335,"cabrilla":7063,"total":66655},"Santiago del Estero":{"chivo":43564,"cabra":295621,"cabrito":103133,"capon":8252,"cabrilla":33521,"total":484091},"Tucumán":{"chivo":1788,"cabra":9062,"cabrito":1717,"capon":706,"cabrilla":1411,"total":14684}},"2026":{"Buenos Aires":{"chivo":7556,"cabra":16951,"cabrilla":5692,"cabrito":21450,"capon":1062,"total":52711},"Catamarca":{"chivo":6756,"cabra":9233,"cabrilla":21399,"cabrito":72714,"capon":1569,"total":111671},"Chaco":{"chivo":43472,"cabra":88153,"cabrilla":57931,"cabrito":281356,"capon":11800,"total":482712},"Chubut":{"chivo":17052,"cabra":11623,"cabrilla":2796,"cabrito":51227,"capon":5322,"total":88020},"CABA":{"chivo":0,"cabra":0,"cabrilla":0,"cabrito":1,"capon":0,"total":1},"Córdoba":{"chivo":10737,"cabra":60199,"cabrilla":10101,"cabrito":97379,"capon":993,"total":179409},"Corrientes":{"chivo":9603,"cabra":11510,"cabrilla":8700,"cabrito":32653,"capon":2717,"total":65183},"Entre Ríos":{"chivo":1251,"cabra":14970,"cabrilla":6020,"cabrito":26727,"capon":303,"total":49271},"Formosa":{"chivo":10647,"cabra":15667,"cabrilla":17287,"cabrito":139223,"capon":3925,"total":186749},"Jujuy":{"chivo":16864,"cabra":8876,"cabrilla":26778,"cabrito":41086,"capon":6743,"total":100347},"La Pampa":{"chivo":4087,"cabra":14120,"cabrilla":7888,"cabrito":47700,"capon":1542,"total":75337},"La Rioja":{"chivo":1582,"cabra":29466,"cabrilla":18865,"cabrito":96791,"capon":184,"total":146888},"Mendoza":{"chivo":84126,"cabra":113559,"cabrilla":43503,"cabrito":388457,"capon":21488,"total":651133},"Misiones":{"chivo":497,"cabra":587,"cabrilla":449,"cabrito":1900,"capon":82,"total":3515},"Neuquén":{"chivo":107905,"cabra":92408,"cabrilla":10675,"cabrito":467952,"capon":16000,"total":694940},"Río Negro":{"chivo":12053,"cabra":15651,"cabrilla":3886,"cabrito":69040,"capon":3512,"total":104142},"Salta":{"chivo":16207,"cabra":70511,"cabrilla":68564,"cabrito":159132,"capon":5536,"total":319950},"San Juan":{"chivo":1215,"cabra":4206,"cabrilla":12808,"cabrito":34362,"capon":51,"total":52642},"San Luis":{"chivo":2223,"cabra":8338,"cabrilla":6145,"cabrito":63712,"capon":328,"total":80746},"Santa Cruz":{"chivo":87,"cabra":135,"cabrilla":189,"cabrito":379,"capon":0,"total":790},"Santa Fe":{"chivo":7106,"cabra":8388,"cabrilla":7161,"cabrito":34939,"capon":1239,"total":58833},"Santiago del Estero":{"chivo":26089,"cabra":85868,"cabrilla":25654,"cabrito":357351,"capon":5991,"total":500953},"Tucumán":{"chivo":1578,"cabra":1891,"cabrilla":1155,"cabrito":7950,"capon":715,"total":13289}}},"dep":{"22039":{"estab":103,"up":125,"chivo":33,"cabra":671,"cabrilla":274,"cabrito":1844,"capon":20,"total":2842,"capEst":27.5922,"capUP":22.736,"upEst":1.2136},"22007":{"estab":621,"up":1068,"chivo":7187,"cabra":10215,"cabrilla":3670,"cabrito":29226,"capon":1301,"total":51599,"capEst":83.0902,"capUP":48.3137,"upEst":1.7198},"22014":{"estab":164,"up":279,"chivo":224,"cabra":181,"cabrilla":718,"cabrito":4152,"capon":24,"total":5299,"capEst":32.311,"capUP":18.9928,"upEst":1.7012},"22028":{"estab":91,"up":98,"chivo":354,"cabra":464,"cabrilla":877,"cabrito":1053,"capon":127,"total":2875,"capEst":31.5934,"capUP":29.3367,"upEst":1.0769},"22021":{"estab":136,"up":150,"chivo":92,"cabra":364,"cabrilla":297,"cabrito":2328,"capon":8,"total":3089,"capEst":22.7132,"capUP":20.5933,"upEst":1.1029},"22036":{"estab":101,"up":107,"chivo":20,"cabra":68,"cabrilla":567,"cabrito":2522,"capon":0,"total":3177,"capEst":31.4554,"capUP":29.6916,"upEst":1.0594},"22043":{"estab":288,"up":425,"chivo":133,"cabra":2618,"cabrilla":619,"cabrito":7517,"capon":28,"total":10915,"capEst":37.8993,"capUP":25.6824,"upEst":1.4757},"22049":{"estab":52,"up":59,"chivo":257,"cabra":288,"cabrilla":370,"cabrito":563,"capon":154,"total":1632,"capEst":31.3846,"capUP":27.661,"upEst":1.1346},"22056":{"estab":165,"up":335,"chivo":649,"cabra":375,"cabrilla":791,"cabrito":6478,"capon":144,"total":8437,"capEst":51.1333,"capUP":25.1851,"upEst":2.0303},"22063":{"estab":2355,"up":3907,"chivo":17086,"cabra":39080,"cabrilla":30405,"cabrito":99093,"capon":8346,"total":194010,"capEst":82.3822,"capUP":49.657,"upEst":1.659},"22070":{"estab":91,"up":98,"chivo":50,"cabra":96,"cabrilla":242,"cabrito":1750,"capon":4,"total":2142,"capEst":23.5385,"capUP":21.8571,"upEst":1.0769},"22077":{"estab":107,"up":145,"chivo":170,"cabra":825,"cabrilla":359,"cabrito":1931,"capon":6,"total":3291,"capEst":30.757,"capUP":22.6966,"upEst":1.3551},"22084":{"estab":985,"up":1613,"chivo":9615,"cabra":2504,"cabrilla":3407,"cabrito":28227,"capon":322,"total":44075,"capEst":44.7462,"capUP":27.3249,"upEst":1.6376},"22091":{"estab":444,"up":546,"chivo":161,"cabra":2981,"cabrilla":1262,"cabrito":7895,"capon":48,"total":12347,"capEst":27.8086,"capUP":22.6136,"upEst":1.2297},"22098":{"estab":370,"up":639,"chivo":1341,"cabra":4679,"cabrilla":1961,"cabrito":14237,"capon":321,"total":22539,"capEst":60.9162,"capUP":35.2723,"upEst":1.727},"22105":{"estab":187,"up":211,"chivo":664,"cabra":1052,"cabrilla":966,"cabrito":2822,"capon":437,"total":5941,"capEst":31.7701,"capUP":28.1564,"upEst":1.1283},"22112":{"estab":83,"up":106,"chivo":133,"cabra":1004,"cabrilla":162,"cabrito":1924,"capon":24,"total":3247,"capEst":39.1205,"capUP":30.6321,"upEst":1.2771},"22119":{"estab":313,"up":490,"chivo":128,"cabra":4569,"cabrilla":1164,"cabrito":8594,"capon":156,"total":14611,"capEst":46.6805,"capUP":29.8184,"upEst":1.5655},"22126":{"estab":68,"up":92,"chivo":363,"cabra":327,"cabrilla":172,"cabrito":1246,"capon":10,"total":2118,"capEst":31.1471,"capUP":23.0217,"upEst":1.3529},"22133":{"estab":230,"up":322,"chivo":156,"cabra":1923,"cabrilla":1097,"cabrito":5053,"capon":7,"total":8236,"capEst":35.8087,"capUP":25.5776,"upEst":1.4},"22140":{"estab":256,"up":636,"chivo":1922,"cabra":657,"cabrilla":2000,"cabrito":11623,"capon":66,"total":16268,"capEst":63.5469,"capUP":25.5786,"upEst":2.4844},"22147":{"estab":392,"up":561,"chivo":721,"cabra":5642,"cabrilla":1286,"cabrito":12159,"capon":67,"total":19875,"capEst":50.7015,"capUP":35.4278,"upEst":1.4311},"22154":{"estab":273,"up":407,"chivo":108,"cabra":1108,"cabrilla":2459,"cabrito":4913,"capon":0,"total":8588,"capEst":31.4579,"capUP":21.1007,"upEst":1.4908},"22161":{"estab":179,"up":340,"chivo":986,"cabra":3040,"cabrilla":1297,"cabrito":7591,"capon":151,"total":13065,"capEst":72.9888,"capUP":38.4265,"upEst":1.8994},"22168":{"estab":354,"up":701,"chivo":919,"cabra":3422,"cabrilla":1509,"cabrito":16615,"capon":29,"total":22494,"capEst":63.5424,"capUP":32.0884,"upEst":1.9802}},"nombres":{"22112":"O'Higgins","22036":"12 de Octubre","22063":"General Güemes","22161":"Tapenagá","22133":"Quitilipi","22119":"Presidencia de la Plaza","22154":"Sargento Cabral","22070":"Independencia","22098":"Mayor Luis J. Fontana","22043":"Fray Justo Santa María de Oro","22091":"Maipú","22007":"Almirante Brown","22028":"Chacabuco","22084":"Libertador General San Martín","22014":"Bermejo","22126":"1° de Mayo","22105":"9 de Julio","22140":"San Fernando","22147":"San Lorenzo","22039":"2 de Abril","22168":"25 de Mayo","22077":"Libertad","22021":"Comandante Fernández","22049":"General Belgrano","22056":"General Donovan"},"geo":{"22112":[[[[-60.5134,-27.0098],[-60.5138,-27.0546],[-60.5141,-27.0904],[-60.514,-27.1026],[-60.5145,-27.1298],[-60.5145,-27.1425],[-60.5146,-27.1641],[-60.515,-27.1949],[-60.5155,-27.2312],[-60.5157,-27.2463],[-60.5163,-27.2983],[-60.517,-27.3516],[-60.5177,-27.4037],[-60.5181,-27.4349],[-60.5182,-27.4514],[-60.5184,-27.4648],[-60.6199,-27.4635],[-60.7519,-27.4618],[-60.9093,-27.46],[-60.9094,-27.4017],[-60.8753,-27.3884],[-60.8407,-27.3768],[-60.8324,-27.3741],[-60.8215,-27.3704],[-60.8206,-27.3559],[-60.8201,-27.3231],[-60.8199,-27.3099],[-60.8582,-27.2841],[-60.9051,-27.2525],[-60.8445,-27.1801],[-60.8186,-27.1978],[-60.8171,-27.1453],[-60.8167,-27.1237],[-60.8163,-27.1015],[-60.8158,-27.0679],[-60.8156,-27.0573],[-60.6159,-27.0572],[-60.6148,-26.9761],[-60.6004,-26.9792],[-60.5881,-26.9834],[-60.5384,-27.0007],[-60.5134,-27.0098]]]],"22036":[[[[-61.529,-27.0544],[-61.4313,-27.1219],[-61.4064,-27.1373],[-61.3664,-27.1642],[-61.3466,-27.1779],[-61.1914,-27.2858],[-61.1776,-27.2954],[-61.1663,-27.3032],[-61.1498,-27.3142],[-61.0331,-27.3934],[-61.0062,-27.4116],[-60.9973,-27.4177],[-60.9972,-27.4342],[-60.9972,-27.4459],[-60.9973,-27.4578],[-60.9973,-27.4662],[-60.9973,-27.4781],[-61.0076,-27.4782],[-61.0191,-27.4782],[-61.0334,-27.4783],[-61.0683,-27.4784],[-61.1454,-27.4786],[-61.1566,-27.4786],[-61.2251,-27.4788],[-61.2571,-27.4789],[-61.3245,-27.4791],[-61.3935,-27.4794],[-61.4562,-27.4797],[-61.4674,-27.4798],[-61.5,-27.4799],[-61.5246,-27.48],[-61.5712,-27.4802],[-61.5709,-27.5324],[-61.5707,-27.5795],[-61.5705,-27.6086],[-61.5699,-27.6565],[-61.5693,-27.7142],[-61.7112,-27.714],[-61.7119,-27.6775],[-61.7118,-27.6377],[-61.7118,-27.5532],[-61.7119,-27.5146],[-61.712,-27.4817],[-61.7121,-27.4486],[-61.7122,-27.4232],[-61.7124,-27.3668],[-61.7128,-27.3126],[-61.7127,-27.2642],[-61.7127,-27.1998],[-61.7127,-27.1325],[-61.7128,-27.107],[-61.7128,-27.0593],[-61.7128,-27.0109],[-61.7127,-26.9308],[-61.5373,-27.0487],[-61.529,-27.0544]]]],"22063":[[[[-62.3243,-24.1232],[-62.3129,-24.1223],[-62.3015,-24.1162],[-62.2934,-24.1206],[-62.2863,-24.1293],[-62.277,-24.1313],[-62.2654,-24.1341],[-62.2511,-24.138],[-62.2393,-24.1441],[-62.2283,-24.1354],[-62.2231,-24.1437],[-62.2118,-24.1517],[-62.195,-24.1528],[-62.1827,-24.155],[-62.1751,-24.1668],[-62.1717,-24.1777],[-62.1751,-24.189],[-62.1751,-24.2013],[-62.1656,-24.1986],[-62.1561,-24.1956],[-62.1456,-24.1965],[-62.1361,-24.196],[-62.1384,-24.2102],[-62.1385,-24.2187],[-62.1228,-24.21],[-62.1147,-24.2087],[-62.1059,-24.2075],[-62.0883,-24.202],[-62.0764,-24.2013],[-62.081,-24.2126],[-62.0871,-24.2261],[-62.0791,-24.2296],[-62.0662,-24.2152],[-62.0553,-24.2113],[-62.0493,-24.2244],[-62.0453,-24.2347],[-62.0329,-24.2396],[-62.0234,-24.2344],[-62.0116,-24.2274],[-62.0022,-24.2362],[-61.9963,-24.247],[-61.9821,-24.2479],[-61.985,-24.2351],[-61.9749,-24.2314],[-61.9607,-24.2348],[-61.9521,-24.2366],[-61.9517,-24.2475],[-61.9564,-24.2584],[-61.9469,-24.264],[-61.9388,-24.2662],[-61.9298,-24.2653],[-61.9163,-24.2623],[-61.9078,-24.2594],[-61.9042,-24.2677],[-61.904,-24.2778],[-61.9177,-24.2801],[-61.919,-24.2923],[-61.9137,-24.303],[-61.9051,-24.3048],[-61.9007,-24.2965],[-61.8964,-24.2884],[-61.8927,-24.28],[-61.8865,-24.2693],[-61.8832,-24.2775],[-61.8842,-24.2871],[-61.8823,-24.3024],[-61.8693,-24.3097],[-61.8598,-24.3089],[-61.8466,-24.3028],[-61.8366,-24.3067],[-61.8314,-24.3167],[-61.8181,-24.3202],[-61.8098,-24.3213],[-61.8002,-24.3288],[-61.791,-24.3337],[-61.7786,-24.3198],[-61.7715,-24.3106],[-61.7615,-24.3067],[-61.7634,-24.3159],[-61.7606,-24.3285],[-61.7515,-24.3316],[-61.7415,-24.3372],[-61.7287,-24.342],[-61.7206,-24.3398],[-61.7282,-24.3529],[-61.7202,-24.3642],[-61.7116,-24.3647],[-61.6984,-24.3656],[-61.7107,-24.3773],[-61.7126,-24.386],[-61.7038,-24.3939],[-61.7015,-24.4044],[-61.6964,-24.4129],[-61.6855,-24.4143],[-61.6759,-24.4229],[-61.6645,-24.4234],[-61.6552,-24.4327],[-61.6471,-24.4338],[-61.6322,-24.433],[-61.6242,-24.4232],[-61.6103,-24.4217],[-61.609,-24.435],[-61.608,-24.4508],[-61.5989,-24.4521],[-61.5975,-24.4382],[-61.5871,-24.4391],[-61.5819,-24.4487],[-61.585,-24.4591],[-61.5913,-24.4687],[-61.5964,-24.4793],[-61.5799,-24.4909],[-61.5638,-24.4965],[-61.5543,-24.4974],[-61.5424,-24.5065],[-61.5352,-24.5152],[-61.5224,-24.5178],[-61.5237,-24.5297],[-61.524,-24.5393],[-61.5176,-24.5486],[-61.5029,-24.56],[-61.4948,-24.5644],[-61.4772,-24.5752],[-61.4715,-24.5848],[-61.4839,-24.59],[-61.4726,-24.6011],[-61.4625,-24.6074],[-61.454,-24.6122],[-61.4423,-24.6102],[-61.4326,-24.6152],[-61.4238,-24.6175],[-61.4133,-24.6149],[-61.4039,-24.6144],[-61.3951,-24.612],[-61.3846,-24.6122],[-61.382,-24.622],[-61.3812,-24.6378],[-61.373,-24.6355],[-61.367,-24.6269],[-61.3584,-24.6267],[-61.3525,-24.6353],[-61.3418,-24.6395],[-61.3293,-24.6355],[-61.321,-24.6347],[-61.3123,-24.633],[-61.3042,-24.6278],[-61.2914,-24.6248],[-61.2808,-24.6363],[-61.2676,-24.6356],[-61.2614,-24.6269],[-61.2529,-24.6287],[-61.2511,-24.6383],[-61.2481,-24.6495],[-61.2372,-24.6435],[-61.2301,-24.6352],[-61.2296,-24.6495],[-61.2206,-24.6521],[-61.2096,-24.6508],[-61.1973,-24.6613],[-61.1982,-24.6704],[-61.2068,-24.6678],[-61.2177,-24.6656],[-61.2098,-24.6739],[-61.2011,-24.6826],[-61.2069,-24.6948],[-61.1987,-24.7033],[-61.1892,-24.7099],[-61.1811,-24.7212],[-61.1787,-24.7099],[-61.1706,-24.6999],[-61.1616,-24.6991],[-61.1694,-24.7094],[-61.1697,-24.7186],[-61.1697,-24.7295],[-61.1602,-24.7377],[-61.1502,-24.7499],[-61.1478,-24.7581],[-61.1583,-24.7577],[-61.1583,-24.7685],[-61.1578,-24.7798],[-61.1493,-24.7872],[-61.1397,-24.7868],[-61.1459,-24.7971],[-61.1431,-24.8058],[-61.1307,-24.8201],[-61.1196,-24.8268],[-61.1074,-24.8348],[-61.0979,-24.8358],[-61.0894,-24.8397],[-61.0927,-24.8488],[-61.0827,-24.851],[-61.0713,-24.8549],[-61.0788,-24.8646],[-61.0751,-24.8727],[-61.0632,-24.8726],[-61.0556,-24.8822],[-61.0471,-24.8902],[-61.038,-24.8974],[-61.0283,-24.8892],[-61.0295,-24.8974],[-61.0247,-24.9056],[-61.0162,-24.9095],[-61.0209,-24.9186],[-61.0119,-24.9244],[-61.0025,-24.9175],[-60.9944,-24.9163],[-60.999,-24.9247],[-60.9957,-24.9338],[-60.9824,-24.9433],[-60.9725,-24.9419],[-60.964,-24.9484],[-60.9582,-24.9566],[-60.9578,-24.9659],[-60.9493,-24.9713],[-60.9402,-24.9769],[-60.9292,-24.9793],[-60.9209,-24.9805],[-60.929,-24.9875],[-60.9413,-24.9909],[-60.9401,-25.0044],[-60.932,-24.9992],[-60.9225,-25.007],[-60.9068,-25.0152],[-60.8973,-25.0105],[-60.8845,-25.0152],[-60.875,-25.0197],[-60.8697,-25.0313],[-60.8472,-25.0324],[-60.8388,-25.0327],[-60.8267,-25.0333],[-60.8179,-25.0369],[-60.8279,-25.0386],[-60.8369,-25.0382],[-60.8274,-25.0495],[-60.824,-25.0604],[-60.8198,-25.0702],[-60.8079,-25.0728],[-60.807,-25.0642],[-60.7948,-25.068],[-60.782,-25.0711],[-60.7647,-25.0724],[-60.7531,-25.07],[-60.7611,-25.0831],[-60.7599,-25.0914],[-60.7499,-25.0958],[-60.7381,-25.0975],[-60.7338,-25.1083],[-60.7328,-25.117],[-60.7238,-25.1164],[-60.7216,-25.125],[-60.7109,-25.1205],[-60.7,-25.1196],[-60.6863,-25.1287],[-60.6763,-25.1356],[-60.6842,-25.1209],[-60.6753,-25.1187],[-60.6611,-25.1204],[-60.6642,-25.1332],[-60.6725,-25.1438],[-60.6611,-25.1525],[-60.6525,-25.1525],[-60.6444,-25.1542],[-60.6539,-25.1585],[-60.6468,-25.1693],[-60.6377,-25.1656],[-60.6321,-25.175],[-60.6211,-25.1711],[-60.6083,-25.1771],[-60.6097,-25.1672],[-60.5959,-25.1646],[-60.586,-25.178],[-60.5712,-25.1698],[-60.5722,-25.1845],[-60.5684,-25.1988],[-60.5659,-25.1904],[-60.5517,-25.1806],[-60.5427,-25.1776],[-60.541,-25.1674],[-60.5298,-25.1717],[-60.5211,-25.18],[-60.5102,-25.1883],[-60.5095,-25.1975],[-60.5102,-25.2086],[-60.5014,-25.2112],[-60.4898,-25.2095],[-60.4869,-25.2181],[-60.4893,-25.2285],[-60.4822,-25.2378],[-60.4712,-25.2428],[-60.4632,-25.2484],[-60.4527,-25.2545],[-60.4418,-25.2653],[-60.4394,-25.2752],[-60.4432,-25.2864],[-60.4342,-25.2791],[-60.4304,-25.2903],[-60.4289,-25.2994],[-60.4289,-25.3102],[-60.4194,-25.3089],[-60.4094,-25.315],[-60.4009,-25.3297],[-60.389,-25.3353],[-60.3776,-25.3279],[-60.3694,-25.3297],[-60.359,-25.3214],[-60.3538,-25.3331],[-60.351,-25.3443],[-60.35,-25.3556],[-60.34,-25.3573],[-60.3386,-25.3655],[-60.3415,-25.3737],[-60.331,-25.3776],[-60.3229,-25.3802],[-60.3148,-25.3836],[-60.3229,-25.3875],[-60.332,-25.3875],[-60.3334,-25.3957],[-60.3272,-25.4074],[-60.3186,-25.4091],[-60.3106,-25.4074],[-60.3144,-25.4156],[-60.3229,-25.4242],[-60.3148,-25.4225],[-60.3062,-25.4202],[-60.2996,-25.41],[-60.2992,-25.4212],[-60.2963,-25.4316],[-60.2826,-25.4333],[-60.2797,-25.448],[-60.2773,-25.4618],[-60.2692,-25.4691],[-60.2602,-25.4648],[-60.2511,-25.4695],[-60.2431,-25.4713],[-60.2331,-25.4786],[-60.2245,-25.4851],[-60.234,-25.4976],[-60.2412,-25.5088],[-60.2317,-25.5058],[-60.2236,-25.517],[-60.2217,-25.5265],[-60.2221,-25.5403],[-60.2335,-25.5442],[-60.2416,-25.5446],[-60.2388,-25.5528],[-60.2361,-25.5625],[-60.2278,-25.5644],[-60.2193,-25.5701],[-60.2093,-25.5705],[-60.2174,-25.5778],[-60.2264,-25.586],[-60.2174,-25.5903],[-60.2207,-25.5985],[-60.2084,-25.6011],[-60.1985,-25.603],[-60.1889,-25.6063],[-60.1969,-25.6097],[-60.1912,-25.6213],[-60.1775,-25.6274],[-60.1927,-25.636],[-60.1813,-25.6438],[-60.1787,-25.6522],[-60.1661,-25.6455],[-60.155,-25.6447],[-60.147,-25.6407],[-60.1399,-25.6511],[-60.1318,-25.6498],[-60.1157,-25.6631],[-60.1076,-25.6597],[-60.1028,-25.67],[-60.0986,-25.6782],[-60.0986,-25.7018],[-60.0987,-25.7613],[-60.0987,-25.7853],[-60.0987,-25.8149],[-60.0987,-25.8256],[-60.0987,-25.8533],[-60.0987,-25.8822],[-60.0988,-25.9417],[-60.0988,-25.9513],[-60.0988,-25.9806],[-60.0988,-26.0007],[-60.0988,-26.0111],[-60.0988,-26.0217],[-60.0988,-26.0323],[-60.0991,-26.1082],[-60.0992,-26.1185],[-60.1513,-26.1218],[-60.3581,-26.1196],[-60.4192,-26.119],[-60.4995,-26.1181],[-60.5678,-26.1174],[-60.7295,-26.1156],[-60.7692,-26.1152],[-60.7998,-26.1149],[-60.9019,-26.1134],[-60.9997,-26.112],[-61.1333,-26.11],[-61.1627,-26.1096],[-61.1923,-26.1092],[-61.2036,-26.109],[-61.2014,-25.9926],[-61.1996,-25.8942],[-61.1988,-25.8478],[-61.1973,-25.767],[-61.1969,-25.7471],[-61.1959,-25.6913],[-61.1949,-25.6376],[-61.1946,-25.6213],[-61.1936,-25.5635],[-61.3925,-25.5604],[-61.3938,-25.55],[-61.3937,-25.5201],[-61.3937,-25.5054],[-61.3937,-25.4896],[-61.3937,-25.4809],[-61.3937,-25.4714],[-61.4192,-25.4691],[-61.4547,-25.4685],[-61.6265,-25.4657],[-61.6419,-25.4668],[-61.6526,-25.4668],[-61.7103,-25.4668],[-61.8725,-25.4667],[-61.9252,-25.4667],[-62.0862,-25.4667],[-62.1145,-25.4667],[-62.1225,-25.4667],[-62.1568,-25.4667],[-62.1926,-25.4667],[-62.2082,-25.4667],[-62.2186,-25.4667],[-62.2186,-25.1974],[-62.2186,-25.1682],[-62.2185,-25.0514],[-62.2185,-24.9213],[-62.2185,-24.8321],[-62.3861,-24.8304],[-62.4453,-24.8305],[-62.5406,-24.8306],[-62.5542,-24.8306],[-62.7043,-24.8309],[-62.7143,-24.8309],[-62.7053,-24.8186],[-62.6151,-24.7116],[-62.5901,-24.6827],[-62.5606,-24.6486],[-62.5425,-24.6275],[-62.5142,-24.5946],[-62.4682,-24.5404],[-62.425,-24.4895],[-62.4182,-24.4814],[-62.3796,-24.4358],[-62.3506,-24.4015],[-62.3424,-24.3921],[-62.3422,-24.3738],[-62.3421,-24.3578],[-62.3421,-24.3315],[-62.3422,-24.3192],[-62.3422,-24.2833],[-62.3421,-24.2373],[-62.3422,-24.2102],[-62.3422,-24.1672],[-62.3421,-24.1325],[-62.3422,-24.1211],[-62.3422,-24.1102],[-62.3365,-24.0955],[-62.3339,-24.0867],[-62.3258,-24.0852],[-62.3164,-24.0918],[-62.3096,-24.1053],[-62.3164,-24.1151],[-62.3243,-24.1232]]]],"22161":[[[[-59.5965,-27.2842],[-59.585,-27.2947],[-59.5811,-27.3074],[-59.5815,-27.3622],[-59.5819,-27.4279],[-59.5822,-27.4681],[-59.4715,-27.4678],[-59.4598,-27.4677],[-59.4197,-27.4676],[-59.4052,-27.4676],[-59.4038,-27.5185],[-59.4038,-27.5961],[-59.4038,-27.6502],[-59.4038,-27.6726],[-59.4038,-27.7402],[-59.4038,-27.7505],[-59.4037,-27.8243],[-59.4037,-27.8363],[-59.4027,-27.9042],[-59.4015,-27.9817],[-59.4012,-27.9994],[-59.4131,-28.0001],[-59.4512,-28.0001],[-59.5027,-28.0004],[-59.5561,-28.0006],[-59.6152,-28.0008],[-59.6491,-28.001],[-59.7026,-28.0015],[-59.7124,-28.0015],[-59.7441,-28.0014],[-59.7849,-28.0014],[-59.8111,-28.0013],[-59.8214,-28.0013],[-59.8605,-28.0013],[-59.8923,-28.0013],[-59.9385,-28.0013],[-59.9771,-28.0014],[-59.9926,-28.0014],[-60.0277,-28.0014],[-60.0602,-28.0013],[-60.109,-28.001],[-60.1534,-28.0006],[-60.1727,-28.0006],[-60.2007,-28.0007],[-60.2156,-28.0007],[-60.2156,-27.9472],[-60.2155,-27.8929],[-60.2155,-27.8361],[-60.2154,-27.7823],[-60.2154,-27.7381],[-60.2153,-27.7271],[-60.2153,-27.7181],[-60.2147,-27.615],[-60.2146,-27.5885],[-60.2142,-27.5177],[-60.214,-27.4683],[-60.2138,-27.4198],[-60.2133,-27.3225],[-60.2132,-27.3136],[-60.213,-27.2871],[-60.1127,-27.2857],[-60.0113,-27.2864],[-60.0023,-27.2864],[-59.9797,-27.2866],[-59.9628,-27.2867],[-59.9325,-27.2867],[-59.9086,-27.2868],[-59.8845,-27.2868],[-59.8679,-27.2869],[-59.8587,-27.2869],[-59.7676,-27.2871],[-59.7104,-27.2872],[-59.6675,-27.2844],[-59.6065,-27.2842],[-59.5974,-27.2842],[-59.5965,-27.2842]]]],"22133":[[[[-60.1011,-26.3028],[-60.0713,-26.303],[-60.0132,-26.3035],[-60.0015,-26.3036],[-60.0019,-26.3524],[-60.0029,-26.4573],[-60.0037,-26.5226],[-60.0042,-26.5654],[-60.0054,-26.6713],[-60.0057,-26.703],[-60.0203,-26.6978],[-60.0774,-26.6777],[-60.0886,-26.6738],[-60.0944,-26.6871],[-60.0982,-26.6957],[-60.1359,-26.7821],[-60.1399,-26.7912],[-60.18,-26.8831],[-60.2258,-26.9881],[-60.2483,-27.0396],[-60.2703,-27.0899],[-60.2858,-27.0902],[-60.3077,-27.0826],[-60.341,-27.0709],[-60.4129,-27.0455],[-60.4031,-27.0228],[-60.3918,-26.9968],[-60.3803,-26.9705],[-60.369,-26.9445],[-60.3585,-26.9206],[-60.3475,-26.8956],[-60.3359,-26.8691],[-60.3309,-26.8577],[-60.3257,-26.8458],[-60.3157,-26.8229],[-60.3066,-26.8024],[-60.3031,-26.7943],[-60.2931,-26.7714],[-60.2839,-26.7504],[-60.2587,-26.6912],[-60.2509,-26.6747],[-60.2295,-26.6261],[-60.2057,-26.6324],[-60.2043,-26.531],[-60.2041,-26.5167],[-60.203,-26.4266],[-60.2028,-26.4099],[-60.2017,-26.3172],[-60.2015,-26.3039],[-60.1018,-26.3028],[-60.1011,-26.3028]]]],"22119":[[[[-59.704,-26.7114],[-59.7038,-26.7202],[-59.7039,-26.7317],[-59.7043,-26.7731],[-59.7045,-26.7933],[-59.7046,-26.8018],[-59.6052,-26.8019],[-59.6044,-26.8494],[-59.6044,-26.8962],[-59.6042,-26.9828],[-59.593,-26.9829],[-59.5637,-26.9831],[-59.5537,-26.9831],[-59.5538,-27.0129],[-59.5538,-27.0403],[-59.554,-27.1039],[-59.5542,-27.167],[-59.5543,-27.2306],[-59.5543,-27.2399],[-59.5817,-27.2643],[-59.5985,-27.2794],[-59.6649,-27.2844],[-59.7057,-27.2846],[-59.7653,-27.2871],[-59.8587,-27.2869],[-59.8679,-27.2869],[-59.8841,-27.2868],[-59.9081,-27.2868],[-59.9318,-27.2867],[-59.9559,-27.2867],[-59.9796,-27.2866],[-59.9966,-27.2865],[-60.0112,-27.2864],[-60.0108,-27.2433],[-60.0111,-27.1991],[-59.9883,-27.1965],[-60.028,-27.1808],[-60.0369,-27.1777],[-60.0115,-27.1184],[-60.004,-27.1011],[-59.9937,-27.0773],[-59.9837,-27.0542],[-59.9796,-27.0449],[-59.9669,-27.0156],[-59.96,-26.9996],[-59.9534,-26.9844],[-59.9443,-26.9635],[-59.9351,-26.9422],[-59.9259,-26.9209],[-59.9167,-26.8998],[-59.9077,-26.879],[-59.8985,-26.8578],[-59.8893,-26.8366],[-59.8802,-26.8156],[-59.8712,-26.7947],[-59.8623,-26.7743],[-59.8548,-26.7569],[-59.854,-26.733],[-59.8539,-26.7129],[-59.7849,-26.7111],[-59.7731,-26.7112],[-59.704,-26.7114]]]],"22154":[[[[-59.5033,-26.6904],[-59.5032,-26.7125],[-59.4528,-26.7121],[-59.4524,-26.7768],[-59.4522,-26.8028],[-59.3376,-26.8022],[-59.3093,-26.802],[-59.2013,-26.8015],[-59.2012,-26.8188],[-59.1565,-26.8185],[-59.1547,-26.8558],[-59.1546,-26.8697],[-59.17,-26.8699],[-59.17,-26.8823],[-59.17,-26.8917],[-59.1701,-26.8998],[-59.224,-26.9473],[-59.2475,-26.9681],[-59.2663,-26.9846],[-59.3018,-27.0159],[-59.3011,-26.9821],[-59.3219,-26.9822],[-59.3515,-26.9823],[-59.3511,-27.0273],[-59.3768,-27.0274],[-59.4027,-27.0281],[-59.4029,-27.0124],[-59.4851,-27.0126],[-59.4992,-27.0126],[-59.5284,-27.0127],[-59.5538,-27.0129],[-59.5537,-26.9831],[-59.5637,-26.9831],[-59.593,-26.9829],[-59.6042,-26.9828],[-59.6044,-26.9015],[-59.6044,-26.8494],[-59.6045,-26.8019],[-59.7031,-26.8018],[-59.7045,-26.7933],[-59.7043,-26.7741],[-59.7039,-26.7317],[-59.7038,-26.7202],[-59.7037,-26.7114],[-59.7731,-26.7112],[-59.7849,-26.7111],[-59.8533,-26.7108],[-59.8539,-26.7024],[-59.8538,-26.685],[-59.8537,-26.6758],[-59.8537,-26.6666],[-59.8536,-26.6466],[-59.8542,-26.638],[-59.8533,-26.6122],[-59.8531,-26.5951],[-59.8525,-26.5325],[-59.804,-26.5309],[-59.7032,-26.5317],[-59.703,-26.6219],[-59.6553,-26.6219],[-59.6417,-26.6219],[-59.5545,-26.622],[-59.5035,-26.6221],[-59.5035,-26.6424],[-59.5034,-26.6666],[-59.5033,-26.6904]]]],"22070":[[[[-60.561,-26.6441],[-60.5764,-26.679],[-60.5816,-26.6907],[-60.621,-26.7798],[-60.6292,-26.7983],[-60.6756,-26.9034],[-60.6801,-26.9136],[-60.6945,-26.946],[-60.6748,-26.953],[-60.6148,-26.9741],[-60.6153,-27.0572],[-60.8156,-27.055],[-60.8157,-27.0353],[-60.8161,-26.9341],[-60.8162,-26.9023],[-60.8514,-26.8899],[-60.8726,-26.9148],[-60.8831,-26.927],[-60.8951,-26.9188],[-60.9036,-26.9131],[-60.9638,-26.8721],[-61.0057,-26.8435],[-60.9927,-26.842],[-60.9924,-26.8232],[-60.9917,-26.7772],[-60.9911,-26.7352],[-60.991,-26.727],[-60.9906,-26.7],[-60.9904,-26.6857],[-60.9902,-26.6717],[-60.99,-26.6631],[-60.9301,-26.6618],[-60.9006,-26.6767],[-60.8889,-26.6514],[-60.8807,-26.6328],[-60.8587,-26.5833],[-60.8283,-26.5147],[-60.8033,-26.4582],[-60.7958,-26.4413],[-60.79,-26.4282],[-60.774,-26.4308],[-60.7582,-26.4364],[-60.6019,-26.492],[-60.5856,-26.4978],[-60.5688,-26.5038],[-60.5438,-26.5127],[-60.5229,-26.5201],[-60.5091,-26.525],[-60.5239,-26.5603],[-60.5301,-26.5743],[-60.5464,-26.6111],[-60.561,-26.6441]]]],"22098":[[[[-60.5184,-27.4648],[-60.4678,-27.4652],[-60.4685,-27.5584],[-60.4686,-27.5667],[-60.4692,-27.6459],[-60.5233,-27.6456],[-60.5227,-27.6837],[-60.5225,-27.6951],[-60.5219,-27.7372],[-60.3587,-27.7377],[-60.3426,-27.7377],[-60.2163,-27.7381],[-60.2154,-27.7789],[-60.2155,-27.8353],[-60.2155,-27.8901],[-60.2156,-27.9456],[-60.2156,-27.9994],[-60.231,-28.0007],[-60.2784,-28.001],[-60.2957,-28.0011],[-60.314,-28.001],[-60.339,-28.001],[-60.3693,-28.001],[-60.4059,-28.0009],[-60.4311,-28.0009],[-60.4632,-28.0009],[-60.4923,-28.0008],[-60.5213,-28.0006],[-60.5503,-28.0004],[-60.5791,-28.0002],[-60.6073,-28.0],[-60.623,-27.9999],[-60.6364,-27.9998],[-60.6697,-27.9996],[-60.7012,-27.9995],[-60.7152,-27.9995],[-60.7393,-27.9993],[-60.7673,-27.999],[-60.7931,-27.9988],[-60.8156,-27.9986],[-60.8515,-27.9985],[-60.8723,-27.9984],[-60.9091,-27.9983],[-60.9091,-27.9889],[-60.9091,-27.9733],[-60.9091,-27.9631],[-60.909,-27.915],[-60.9089,-27.8627],[-60.9087,-27.811],[-60.9087,-27.7939],[-60.9307,-27.7939],[-61.0137,-27.7941],[-61.0136,-27.7544],[-61.0136,-27.704],[-61.0135,-27.6566],[-61.0135,-27.6353],[-61.0195,-27.6132],[-61.0195,-27.5979],[-61.0217,-27.5822],[-61.0217,-27.5737],[-61.0218,-27.5655],[-61.0218,-27.5571],[-61.0219,-27.5485],[-61.0219,-27.54],[-61.022,-27.5315],[-61.0221,-27.523],[-61.0221,-27.5146],[-61.0222,-27.5064],[-61.0223,-27.4805],[-61.0076,-27.4782],[-60.9973,-27.4781],[-60.9973,-27.4698],[-60.9973,-27.458],[-60.9972,-27.446],[-60.9972,-27.4349],[-60.9972,-27.4241],[-60.9972,-27.4046],[-60.9094,-27.3998],[-60.9093,-27.46],[-60.7519,-27.4618],[-60.6199,-27.4635],[-60.519,-27.4648],[-60.5184,-27.4648]]]],"22043":[[[[-61.0136,-27.7544],[-61.0137,-27.7941],[-60.9345,-27.7939],[-60.9087,-27.7939],[-60.9087,-27.8095],[-60.9088,-27.8613],[-60.909,-27.9134],[-60.9091,-27.9628],[-60.9091,-27.9733],[-60.9091,-27.9854],[-60.9091,-27.9934],[-60.9459,-27.9984],[-61.0081,-27.9984],[-61.0464,-27.998],[-61.098,-27.9977],[-61.1237,-27.9977],[-61.1462,-27.9977],[-61.1819,-27.998],[-61.212,-27.9982],[-61.2661,-27.9983],[-61.2882,-27.9983],[-61.3113,-27.9983],[-61.3515,-27.9984],[-61.3883,-27.9984],[-61.4073,-27.9984],[-61.4229,-27.9983],[-61.4623,-27.9982],[-61.4937,-27.9982],[-61.5575,-27.9982],[-61.5889,-27.9983],[-61.6027,-27.9983],[-61.6248,-27.9983],[-61.6598,-27.9984],[-61.6889,-27.9985],[-61.7077,-27.9985],[-61.712,-27.9872],[-61.712,-27.9508],[-61.712,-27.863],[-61.7119,-27.7972],[-61.7119,-27.7775],[-61.7119,-27.716],[-61.57,-27.7142],[-61.5689,-27.7473],[-61.5688,-27.7583],[-61.5683,-27.7948],[-61.4537,-27.7949],[-61.3499,-27.795],[-61.284,-27.794],[-61.2417,-27.7942],[-61.2402,-27.785],[-61.2403,-27.7498],[-61.2405,-27.7072],[-61.1304,-27.7055],[-61.1298,-27.6368],[-61.082,-27.635],[-61.0194,-27.6349],[-61.0135,-27.6513],[-61.0136,-27.7015],[-61.0136,-27.7531],[-61.0136,-27.7544]]]],"22091":[[[[-60.0993,-26.1224],[-60.0994,-26.1355],[-60.0999,-26.1872],[-60.1002,-26.21],[-60.1006,-26.2507],[-60.1008,-26.2693],[-60.1011,-26.2995],[-60.2015,-26.3019],[-60.2017,-26.3172],[-60.2028,-26.4099],[-60.203,-26.4266],[-60.2041,-26.5167],[-60.2043,-26.531],[-60.2055,-26.6325],[-60.228,-26.6245],[-60.3216,-26.5914],[-60.3497,-26.5814],[-60.3685,-26.5747],[-60.4889,-26.5321],[-60.5084,-26.5252],[-60.5229,-26.5201],[-60.543,-26.513],[-60.5688,-26.5038],[-60.5856,-26.4978],[-60.6019,-26.492],[-60.7582,-26.4364],[-60.774,-26.4308],[-60.7888,-26.4255],[-60.8045,-26.4199],[-60.804,-26.3899],[-60.8022,-26.2704],[-60.8004,-26.1571],[-60.7998,-26.1167],[-60.7692,-26.1152],[-60.7295,-26.1156],[-60.5678,-26.1174],[-60.4995,-26.1181],[-60.4192,-26.119],[-60.3581,-26.1196],[-60.1513,-26.1218],[-60.0999,-26.1224],[-60.0993,-26.1224]]]],"22007":[[[[-61.6419,-25.4668],[-61.6273,-25.4668],[-61.4547,-25.4685],[-61.4192,-25.4691],[-61.3944,-25.4695],[-61.3937,-25.4809],[-61.3937,-25.4896],[-61.3937,-25.5051],[-61.3937,-25.5201],[-61.3938,-25.55],[-61.3938,-25.5603],[-61.1936,-25.5635],[-61.1946,-25.6213],[-61.1949,-25.6376],[-61.1959,-25.6897],[-61.1969,-25.7471],[-61.1973,-25.767],[-61.1988,-25.8478],[-61.1996,-25.8942],[-61.2014,-25.9926],[-61.2036,-26.109],[-61.1923,-26.1092],[-61.1627,-26.1096],[-61.1333,-26.11],[-60.9997,-26.112],[-60.9019,-26.1134],[-60.7998,-26.1149],[-60.8004,-26.1571],[-60.8022,-26.2704],[-60.804,-26.3899],[-60.8045,-26.4199],[-60.7888,-26.4255],[-60.7958,-26.4413],[-60.8033,-26.4582],[-60.8262,-26.51],[-60.8564,-26.5781],[-60.8807,-26.6328],[-60.8889,-26.6514],[-60.9002,-26.6768],[-60.9301,-26.6659],[-60.99,-26.6613],[-61.0319,-26.6609],[-61.0457,-26.6608],[-61.1105,-26.6602],[-61.1652,-26.6597],[-61.1914,-26.6595],[-61.2716,-26.6588],[-61.3019,-26.6586],[-61.3279,-26.6584],[-61.4218,-26.6572],[-61.4374,-26.657],[-61.6389,-26.6545],[-61.6689,-26.6541],[-61.6785,-26.654],[-61.7112,-26.6535],[-61.7124,-26.6452],[-61.7121,-26.5762],[-61.712,-26.4785],[-61.7121,-26.452],[-61.7123,-26.3805],[-61.7122,-26.3128],[-61.7122,-26.2835],[-61.7122,-26.2502],[-61.7122,-26.2345],[-61.7122,-26.1867],[-61.7124,-26.0966],[-61.7123,-26.0565],[-61.7125,-26.0115],[-61.7122,-25.9801],[-61.7121,-25.9223],[-61.7119,-25.8509],[-61.7118,-25.7395],[-61.7118,-25.7165],[-61.7118,-25.6558],[-61.8368,-25.655],[-61.9124,-25.655],[-62.0128,-25.6549],[-62.1126,-25.6537],[-62.1582,-25.6532],[-62.1781,-25.653],[-62.2744,-25.6523],[-62.3259,-25.6519],[-62.3518,-25.652],[-62.3791,-25.6519],[-62.4326,-25.6516],[-62.4738,-25.6514],[-62.5355,-25.6513],[-63.1924,-25.6491],[-63.3741,-25.6492],[-63.4224,-25.6492],[-63.3594,-25.5771],[-63.3278,-25.5407],[-63.2971,-25.5053],[-63.266,-25.4695],[-63.2555,-25.4576],[-63.2355,-25.4347],[-63.2232,-25.4202],[-63.2045,-25.3986],[-63.1075,-25.2865],[-63.0889,-25.2649],[-63.0743,-25.248],[-63.0477,-25.2172],[-63.0087,-25.1719],[-62.9496,-25.1032],[-62.9115,-25.0589],[-62.8961,-25.041],[-62.8856,-25.0287],[-62.859,-24.9978],[-62.8451,-24.9819],[-62.8277,-24.9615],[-62.8113,-24.9424],[-62.7852,-24.912],[-62.7631,-24.8862],[-62.7402,-24.8595],[-62.7227,-24.8391],[-62.7158,-24.8309],[-62.7043,-24.8309],[-62.5542,-24.8306],[-62.5406,-24.8306],[-62.4453,-24.8305],[-62.3861,-24.8304],[-62.2187,-24.8301],[-62.2185,-24.9198],[-62.2185,-25.0477],[-62.2186,-25.1664],[-62.2186,-25.1974],[-62.2186,-25.4662],[-62.2082,-25.4667],[-62.1989,-25.4667],[-62.1625,-25.4667],[-62.1247,-25.4667],[-62.1145,-25.4667],[-62.0862,-25.4667],[-61.9252,-25.4667],[-61.8802,-25.4667],[-61.7103,-25.4668],[-61.6526,-25.4668],[-61.6419,-25.4668]]]],"22028":[[[[-61.2265,-27.0898],[-61.1621,-27.1337],[-60.9282,-27.2931],[-60.8953,-27.3155],[-60.8491,-27.347],[-60.8215,-27.3658],[-60.8324,-27.3741],[-60.8407,-27.3768],[-60.8731,-27.3877],[-60.9094,-27.3998],[-60.9972,-27.4001],[-60.9972,-27.4177],[-61.0062,-27.4116],[-61.0277,-27.397],[-61.1498,-27.3142],[-61.1584,-27.3091],[-61.1776,-27.2954],[-61.1914,-27.2858],[-61.3466,-27.1779],[-61.3615,-27.1676],[-61.4064,-27.1373],[-61.4303,-27.1207],[-61.529,-27.0544],[-61.5373,-27.0487],[-61.7112,-26.9287],[-61.7126,-26.8092],[-61.7125,-26.7551],[-61.5465,-26.8702],[-61.4832,-26.9142],[-61.4433,-26.9419],[-61.3382,-27.0133],[-61.25,-27.0738],[-61.2265,-27.0898]]]],"22084":[[[[-60.0781,-25.6795],[-60.07,-25.6804],[-60.0572,-25.6799],[-60.0467,-25.686],[-60.0349,-25.6894],[-60.0239,-25.6985],[-60.0187,-25.7092],[-60.0215,-25.723],[-60.0116,-25.7295],[-60.0028,-25.7329],[-59.9945,-25.733],[-59.9854,-25.7252],[-59.9855,-25.7354],[-59.9848,-25.7451],[-59.97,-25.7569],[-59.9616,-25.7643],[-59.9502,-25.7665],[-59.9398,-25.7728],[-59.93,-25.7705],[-59.9217,-25.779],[-59.9241,-25.7876],[-59.9141,-25.7945],[-59.906,-25.7962],[-59.8928,-25.7977],[-59.8818,-25.8035],[-59.8813,-25.8151],[-59.8729,-25.8261],[-59.8764,-25.8354],[-59.8772,-25.8451],[-59.8696,-25.8354],[-59.8592,-25.838],[-59.8687,-25.8444],[-59.8603,-25.846],[-59.8521,-25.8514],[-59.8439,-25.8559],[-59.8371,-25.8705],[-59.829,-25.8692],[-59.821,-25.8767],[-59.8184,-25.8856],[-59.8268,-25.8899],[-59.8187,-25.8921],[-59.8087,-25.8954],[-59.7981,-25.8974],[-59.7892,-25.903],[-59.7812,-25.8967],[-59.7877,-25.9049],[-59.7813,-25.9141],[-59.7684,-25.9153],[-59.7692,-25.9239],[-59.76,-25.9187],[-59.7515,-25.9233],[-59.7541,-25.9316],[-59.7536,-25.9402],[-59.7543,-25.9498],[-59.7454,-25.9487],[-59.7447,-25.9567],[-59.75,-25.9653],[-59.7408,-25.9755],[-59.7317,-25.9692],[-59.7303,-25.9792],[-59.7229,-25.9878],[-59.7271,-25.9975],[-59.7188,-25.9994],[-59.7104,-25.9963],[-59.7104,-26.0053],[-59.7023,-26.0005],[-59.6918,-26.005],[-59.6838,-26.001],[-59.6755,-26.0038],[-59.6835,-26.0071],[-59.6752,-26.0154],[-59.6687,-26.0239],[-59.6767,-26.033],[-59.6745,-26.0428],[-59.6785,-26.0524],[-59.6735,-26.0605],[-59.6649,-26.0535],[-59.6636,-26.0625],[-59.6723,-26.0691],[-59.6679,-26.0773],[-59.6776,-26.0835],[-59.6818,-26.092],[-59.6774,-26.1015],[-59.6735,-26.1097],[-59.661,-26.114],[-59.652,-26.1172],[-59.6529,-26.1254],[-59.6571,-26.1347],[-59.6605,-26.1434],[-59.6494,-26.1416],[-59.64,-26.1363],[-59.6277,-26.1354],[-59.6397,-26.1264],[-59.6283,-26.1183],[-59.6161,-26.12],[-59.6067,-26.1224],[-59.5982,-26.1303],[-59.5895,-26.1245],[-59.5805,-26.1309],[-59.5752,-26.1425],[-59.5742,-26.1528],[-59.5601,-26.15],[-59.5481,-26.1509],[-59.5473,-26.1426],[-59.5389,-26.1461],[-59.5301,-26.1501],[-59.5212,-26.1434],[-59.5132,-26.1527],[-59.5017,-26.1545],[-59.4945,-26.1626],[-59.482,-26.1594],[-59.4728,-26.1582],[-59.4638,-26.1506],[-59.46,-26.1593],[-59.4568,-26.1508],[-59.4461,-26.1534],[-59.4381,-26.1493],[-59.4291,-26.1573],[-59.421,-26.1621],[-59.4208,-26.1702],[-59.4125,-26.1731],[-59.4207,-26.1783],[-59.4197,-26.1869],[-59.4186,-26.1958],[-59.4269,-26.1961],[-59.4184,-26.2049],[-59.4103,-26.2071],[-59.4143,-26.2163],[-59.4139,-26.225],[-59.404,-26.2311],[-59.4035,-26.24],[-59.3952,-26.2467],[-59.3993,-26.2557],[-59.3912,-26.2612],[-59.3813,-26.2617],[-59.3897,-26.2698],[-59.3872,-26.2786],[-59.388,-26.2895],[-59.3979,-26.2949],[-59.3884,-26.3031],[-59.3799,-26.3112],[-59.3794,-26.3194],[-59.368,-26.3255],[-59.3628,-26.3339],[-59.3529,-26.3379],[-59.3469,-26.3292],[-59.338,-26.3356],[-59.3294,-26.3327],[-59.3194,-26.3235],[-59.3108,-26.3229],[-59.3114,-26.3326],[-59.2993,-26.3361],[-59.2904,-26.343],[-59.2823,-26.3439],[-59.2724,-26.3495],[-59.2633,-26.347],[-59.2548,-26.3487],[-59.2547,-26.3405],[-59.2447,-26.3398],[-59.2359,-26.3387],[-59.2274,-26.3408],[-59.2168,-26.3344],[-59.2066,-26.328],[-59.1975,-26.328],[-59.1873,-26.3255],[-59.1899,-26.3174],[-59.1858,-26.3089],[-59.1771,-26.3067],[-59.1687,-26.2999],[-59.159,-26.3005],[-59.1462,-26.3],[-59.1378,-26.3024],[-59.1388,-26.3127],[-59.1469,-26.3084],[-59.1539,-26.3169],[-59.1383,-26.3234],[-59.1253,-26.3281],[-59.1156,-26.3257],[-59.1159,-26.3358],[-59.126,-26.338],[-59.1245,-26.3461],[-59.1112,-26.3423],[-59.1012,-26.3491],[-59.0904,-26.3546],[-59.0807,-26.359],[-59.0729,-26.3675],[-59.0616,-26.3713],[-59.0526,-26.369],[-59.0429,-26.3653],[-59.0353,-26.3744],[-59.0244,-26.3733],[-59.0138,-26.3795],[-59.0027,-26.3741],[-58.9922,-26.3792],[-58.984,-26.3815],[-58.9749,-26.3885],[-58.9667,-26.3932],[-58.9573,-26.3985],[-58.9539,-26.4065],[-58.946,-26.4205],[-58.9426,-26.4291],[-58.9301,-26.4329],[-58.9265,-26.4426],[-58.9176,-26.4437],[-58.9159,-26.4521],[-58.9108,-26.4611],[-58.9013,-26.4657],[-58.8919,-26.4696],[-58.8837,-26.4712],[-58.8717,-26.4721],[-58.8634,-26.4789],[-58.8598,-26.4898],[-58.8584,-26.4978],[-58.8573,-26.506],[-58.8496,-26.5144],[-58.84,-26.5187],[-58.8299,-26.5228],[-58.8192,-26.5233],[-58.8068,-26.5208],[-58.797,-26.519],[-58.7963,-26.528],[-58.795,-26.5365],[-58.7864,-26.5353],[-58.7765,-26.5362],[-58.7684,-26.5452],[-58.7668,-26.5541],[-58.7584,-26.5597],[-58.7607,-26.5689],[-58.7551,-26.5777],[-58.7529,-26.5858],[-58.752,-26.5956],[-58.7408,-26.6045],[-58.7328,-26.602],[-58.7238,-26.6027],[-58.7154,-26.5942],[-58.7072,-26.5978],[-58.6992,-26.5903],[-58.691,-26.5936],[-58.6888,-26.602],[-58.6991,-26.6129],[-58.7128,-26.6245],[-58.7492,-26.6573],[-58.7976,-26.701],[-58.8079,-26.7102],[-58.8552,-26.7529],[-58.8984,-26.7918],[-58.9024,-26.7832],[-58.9117,-26.787],[-58.9134,-26.778],[-58.9222,-26.7791],[-58.9312,-26.7792],[-58.9399,-26.7882],[-58.9537,-26.7858],[-58.9536,-26.8043],[-58.9534,-26.8535],[-58.9533,-26.8684],[-59.1546,-26.8698],[-59.1547,-26.8558],[-59.1551,-26.8185],[-59.2012,-26.8188],[-59.2013,-26.8015],[-59.3093,-26.802],[-59.3376,-26.8022],[-59.4522,-26.8028],[-59.4524,-26.7811],[-59.4528,-26.7121],[-59.5003,-26.7125],[-59.5033,-26.6904],[-59.5034,-26.6666],[-59.5035,-26.6424],[-59.5035,-26.6221],[-59.5519,-26.622],[-59.6417,-26.6219],[-59.6553,-26.6219],[-59.7023,-26.6219],[-59.7032,-26.5331],[-59.7961,-26.5309],[-59.8036,-26.5187],[-59.8036,-26.4979],[-59.8036,-26.4556],[-59.8036,-26.4456],[-59.8035,-26.3703],[-59.8035,-26.3193],[-59.8523,-26.3189],[-59.8535,-26.3061],[-59.8751,-26.3041],[-60.0015,-26.3036],[-60.0132,-26.3035],[-60.0713,-26.303],[-60.1011,-26.3028],[-60.1008,-26.2693],[-60.1006,-26.2507],[-60.1002,-26.21],[-60.0999,-26.1872],[-60.0994,-26.1355],[-60.0993,-26.1274],[-60.0992,-26.1185],[-60.0991,-26.1089],[-60.0983,-26.033],[-60.0988,-26.0217],[-60.0988,-26.0111],[-60.0988,-26.001],[-60.0988,-25.9862],[-60.0988,-25.9513],[-60.0988,-25.9417],[-60.0987,-25.8872],[-60.0987,-25.8533],[-60.0987,-25.8256],[-60.0987,-25.8149],[-60.0987,-25.7853],[-60.0987,-25.7664],[-60.0986,-25.705],[-60.0986,-25.6782],[-60.0986,-25.67],[-60.0884,-25.6734],[-60.0781,-25.6795]]]],"22014":[[[[-58.6804,-26.6427],[-58.6718,-26.6452],[-58.6636,-26.6474],[-58.6571,-26.6558],[-58.6461,-26.6566],[-58.635,-26.6597],[-58.6268,-26.6633],[-58.6171,-26.6759],[-58.6061,-26.6824],[-58.5969,-26.687],[-58.5871,-26.6884],[-58.5789,-26.6859],[-58.5765,-26.6941],[-58.5706,-26.7033],[-58.5713,-26.7127],[-58.5698,-26.7227],[-58.5665,-26.7313],[-58.5581,-26.729],[-58.5556,-26.7391],[-58.5497,-26.7488],[-58.5446,-26.7386],[-58.5328,-26.7401],[-58.5328,-26.7484],[-58.5335,-26.7568],[-58.5251,-26.754],[-58.5137,-26.7634],[-58.5094,-26.774],[-58.5009,-26.7804],[-58.4971,-26.792],[-58.4885,-26.7954],[-58.479,-26.8052],[-58.4719,-26.8146],[-58.4819,-26.8184],[-58.4733,-26.8282],[-58.4681,-26.8188],[-58.4592,-26.8175],[-58.4505,-26.8171],[-58.448,-26.8273],[-58.44,-26.8274],[-58.428,-26.8249],[-58.4281,-26.8338],[-58.4144,-26.8342],[-58.4048,-26.8401],[-58.4011,-26.8311],[-58.3939,-26.8397],[-58.3939,-26.8478],[-58.3977,-26.8568],[-58.3987,-26.8649],[-58.3901,-26.8589],[-58.3793,-26.8618],[-58.3794,-26.8718],[-58.3784,-26.8809],[-58.3815,-26.8893],[-58.3963,-26.8975],[-58.4065,-26.9016],[-58.4149,-26.9057],[-58.4336,-26.9166],[-58.4429,-26.9219],[-58.4564,-26.9282],[-58.4701,-26.9322],[-58.4788,-26.9332],[-58.4882,-26.9309],[-58.4978,-26.9263],[-58.4983,-26.9351],[-58.4916,-26.9434],[-58.4873,-26.9518],[-58.4806,-26.9607],[-58.4745,-26.9703],[-58.472,-26.9786],[-58.4685,-26.9879],[-58.469,-26.9975],[-58.4778,-27.0062],[-58.4869,-27.0017],[-58.4959,-26.9965],[-58.5062,-26.9966],[-58.5147,-26.999],[-58.5218,-27.0077],[-58.5178,-27.0163],[-58.5103,-27.0245],[-58.5029,-27.0337],[-58.4976,-27.0434],[-58.5002,-27.0538],[-58.5113,-27.0623],[-58.5195,-27.0603],[-58.5182,-27.05],[-58.5213,-27.0415],[-58.5301,-27.0363],[-58.5407,-27.0343],[-58.5488,-27.0342],[-58.5588,-27.0371],[-58.5636,-27.0462],[-58.5575,-27.0547],[-58.5534,-27.0632],[-58.5518,-27.0739],[-58.5557,-27.0824],[-58.557,-27.0929],[-58.5542,-27.1037],[-58.5574,-27.1122],[-58.5678,-27.1105],[-58.5766,-27.1083],[-58.5847,-27.1078],[-58.5932,-27.1086],[-58.6058,-27.1104],[-58.6154,-27.1118],[-58.6257,-27.1139],[-58.6361,-27.1174],[-58.6458,-27.1238],[-58.6528,-27.1324],[-58.6557,-27.1406],[-58.6597,-27.1531],[-58.6627,-27.1625],[-58.6645,-27.1753],[-58.6616,-27.1866],[-58.6494,-27.1962],[-58.6385,-27.1999],[-58.6283,-27.2034],[-58.6128,-27.2104],[-58.6017,-27.2169],[-58.5919,-27.2251],[-58.5916,-27.2364],[-58.5957,-27.2501],[-58.5956,-27.2582],[-58.596,-27.2669],[-58.6003,-27.2757],[-58.6081,-27.2858],[-58.6162,-27.2997],[-58.6189,-27.3097],[-58.6165,-27.3186],[-58.6234,-27.3277],[-58.6323,-27.3329],[-58.6404,-27.3375],[-58.6517,-27.3455],[-58.6614,-27.3537],[-58.6761,-27.3611],[-58.6846,-27.3614],[-58.6983,-27.3631],[-58.7068,-27.3657],[-58.7167,-27.37],[-58.7308,-27.3759],[-58.7456,-27.3822],[-58.7563,-27.3835],[-58.7683,-27.3763],[-58.7739,-27.3682],[-58.7726,-27.3593],[-58.7709,-27.3512],[-58.7666,-27.3428],[-58.764,-27.3341],[-58.7681,-27.3247],[-58.7633,-27.3166],[-58.7526,-27.3123],[-58.7454,-27.3041],[-58.7406,-27.296],[-58.7355,-27.2876],[-58.7413,-27.2794],[-58.7436,-27.2711],[-58.7494,-27.2626],[-58.7553,-27.2545],[-58.7568,-27.246],[-58.7552,-27.2379],[-58.7545,-27.2297],[-58.7544,-27.2217],[-58.7624,-27.2202],[-58.7704,-27.2212],[-58.7789,-27.2147],[-58.781,-27.2064],[-58.789,-27.1997],[-58.7872,-27.1914],[-58.7957,-27.1895],[-58.7946,-27.1814],[-58.8031,-27.1802],[-58.8114,-27.1726],[-58.8194,-27.1676],[-58.8275,-27.1633],[-58.8357,-27.1645],[-58.843,-27.1564],[-58.8512,-27.1515],[-58.8592,-27.1466],[-58.8664,-27.1385],[-58.8674,-27.1303],[-58.8657,-27.1221],[-58.8739,-27.118],[-58.8822,-27.1187],[-58.8881,-27.1271],[-58.8963,-27.1247],[-58.9044,-27.1236],[-58.9128,-27.1214],[-58.9208,-27.1251],[-58.9291,-27.1188],[-58.9371,-27.1147],[-58.9455,-27.1083],[-58.9489,-27.0995],[-58.9575,-27.0932],[-58.9572,-27.0847],[-58.9568,-27.0605],[-58.9557,-27.0015],[-58.9546,-26.9435],[-58.9536,-26.889],[-58.9533,-26.8715],[-58.9534,-26.8535],[-58.9536,-26.8123],[-58.9537,-26.7883],[-58.9453,-26.7931],[-58.9373,-26.7864],[-58.9277,-26.7792],[-58.9196,-26.7827],[-58.9086,-26.7845],[-58.9004,-26.7871],[-58.8553,-26.753],[-58.8079,-26.7102],[-58.7976,-26.701],[-58.7511,-26.659],[-58.7128,-26.6245],[-58.7027,-26.616],[-58.6925,-26.6074],[-58.6842,-26.6122],[-58.6841,-26.6226],[-58.6824,-26.6309],[-58.6815,-26.6425],[-58.6804,-26.6427]]]],"22126":[[[[-58.9533,-26.8697],[-58.9535,-26.884],[-58.9546,-26.9411],[-58.9557,-27.0002],[-58.9568,-27.058],[-58.9572,-27.0847],[-58.958,-27.0928],[-58.9498,-27.0982],[-58.9509,-27.1064],[-58.9425,-27.1126],[-58.9344,-27.118],[-58.9263,-27.1205],[-58.9177,-27.1253],[-58.9094,-27.1205],[-58.9013,-27.1254],[-58.8931,-27.1255],[-58.885,-27.1194],[-58.8767,-27.1196],[-58.8687,-27.1222],[-58.8674,-27.1303],[-58.869,-27.1383],[-58.8609,-27.1422],[-58.8527,-27.1495],[-58.8443,-27.1556],[-58.8367,-27.1638],[-58.8285,-27.1622],[-58.8194,-27.1676],[-58.8114,-27.1726],[-58.8058,-27.1807],[-58.7975,-27.1824],[-58.7895,-27.1885],[-58.7903,-27.1971],[-58.7826,-27.2058],[-58.7789,-27.214],[-58.7704,-27.2212],[-58.7624,-27.2202],[-58.7541,-27.2178],[-58.7576,-27.226],[-58.7552,-27.2341],[-58.7577,-27.2425],[-58.7539,-27.2508],[-58.752,-27.259],[-58.744,-27.2673],[-58.7432,-27.2759],[-58.735,-27.2824],[-58.7374,-27.2908],[-58.7424,-27.2992],[-58.7479,-27.3074],[-58.7603,-27.3151],[-58.7678,-27.3234],[-58.7654,-27.3319],[-58.7647,-27.3403],[-58.7699,-27.3484],[-58.7721,-27.3569],[-58.774,-27.3673],[-58.773,-27.3771],[-58.7816,-27.3823],[-58.7917,-27.3917],[-58.7977,-27.4057],[-58.8033,-27.4156],[-58.8086,-27.4237],[-58.8194,-27.4342],[-58.829,-27.4418],[-58.8425,-27.454],[-58.8546,-27.4648],[-58.8658,-27.4766],[-58.8723,-27.4847],[-58.8809,-27.4733],[-58.8889,-27.474],[-58.8984,-27.4765],[-58.8981,-27.4685],[-58.889,-27.4643],[-58.8809,-27.4622],[-58.8812,-27.454],[-58.8799,-27.4455],[-58.875,-27.4368],[-58.8694,-27.4281],[-58.8845,-27.4124],[-58.901,-27.3976],[-58.9239,-27.3769],[-58.9389,-27.3634],[-58.9712,-27.3342],[-58.9824,-27.3243],[-58.9959,-27.3124],[-59.006,-27.3034],[-59.0286,-27.2834],[-59.0371,-27.2909],[-59.0453,-27.2911],[-59.0538,-27.2891],[-59.0619,-27.2855],[-59.0646,-27.277],[-59.0713,-27.2686],[-59.07,-27.2605],[-59.0673,-27.2521],[-59.0757,-27.2484],[-59.0779,-27.2402],[-59.0837,-27.2321],[-59.0918,-27.2319],[-59.1001,-27.2296],[-59.1081,-27.2269],[-59.0999,-27.2188],[-59.1104,-27.2094],[-59.1196,-27.2012],[-59.1376,-27.1851],[-59.1709,-27.1554],[-59.1635,-27.1469],[-59.0772,-27.0707],[-59.0297,-27.0286],[-59.1626,-26.9064],[-59.17,-26.8917],[-59.17,-26.8823],[-59.17,-26.8717],[-59.1604,-26.8699],[-58.9537,-26.8687],[-58.9533,-26.8697]]]],"22105":[[[[-61.3322,-26.6583],[-61.3337,-26.7362],[-61.3357,-26.8391],[-61.2472,-26.8401],[-61.2048,-26.8405],[-61.1897,-26.8407],[-61.1966,-26.8488],[-61.2065,-26.8603],[-61.2151,-26.8704],[-61.1949,-26.8843],[-61.0461,-26.9859],[-61.0359,-26.9929],[-60.8727,-27.1044],[-60.8572,-27.1149],[-60.8474,-27.1216],[-60.8176,-27.142],[-60.8179,-27.1918],[-60.8445,-27.1801],[-60.9049,-27.2509],[-60.8582,-27.2841],[-60.8199,-27.3099],[-60.8201,-27.3231],[-60.8206,-27.3559],[-60.8207,-27.3663],[-60.8491,-27.347],[-60.8953,-27.3155],[-60.9282,-27.2931],[-61.1621,-27.1337],[-61.2265,-27.0898],[-61.25,-27.0738],[-61.3382,-27.0133],[-61.4433,-26.9419],[-61.4832,-26.9142],[-61.5465,-26.8702],[-61.7112,-26.7556],[-61.7125,-26.715],[-61.7126,-26.6866],[-61.7125,-26.6545],[-61.6785,-26.654],[-61.6689,-26.6541],[-61.6389,-26.6545],[-61.4387,-26.657],[-61.4218,-26.6572],[-61.3322,-26.6583]]]],"22140":[[[[-58.8805,-27.4473],[-58.8814,-27.4554],[-58.8877,-27.4637],[-58.8962,-27.4668],[-58.9003,-27.4752],[-58.8916,-27.4749],[-58.8834,-27.4732],[-58.8776,-27.4858],[-58.8791,-27.4947],[-58.8818,-27.5049],[-58.881,-27.5166],[-58.8812,-27.5269],[-58.8804,-27.5358],[-58.8784,-27.5464],[-58.8743,-27.5551],[-58.871,-27.5713],[-58.8714,-27.5799],[-58.8774,-27.5907],[-58.8828,-27.5993],[-58.8827,-27.6085],[-58.876,-27.6168],[-58.8622,-27.6279],[-58.8504,-27.6349],[-58.8422,-27.6406],[-58.8317,-27.6555],[-58.8245,-27.6692],[-58.8188,-27.6812],[-58.8176,-27.6959],[-58.8144,-27.7344],[-58.8134,-27.747],[-58.8121,-27.7587],[-58.8111,-27.7681],[-58.8099,-27.7807],[-58.8139,-27.8036],[-58.8162,-27.8128],[-58.8194,-27.8247],[-58.8235,-27.8395],[-58.828,-27.8479],[-58.8337,-27.8572],[-58.8386,-27.8656],[-58.8432,-27.8763],[-58.8449,-27.8856],[-58.8453,-27.8944],[-58.8444,-27.9042],[-58.8435,-27.914],[-58.8386,-27.9291],[-58.8349,-27.9442],[-58.83,-27.9589],[-58.8306,-27.9677],[-58.8343,-27.977],[-58.8422,-27.9916],[-58.848,-28.0001],[-58.8577,-28.0116],[-58.8607,-28.021],[-58.8604,-28.0344],[-58.8598,-28.0499],[-58.8808,-28.0668],[-58.8835,-28.0565],[-58.8924,-28.0457],[-58.8937,-28.0353],[-58.8913,-28.0254],[-58.8864,-28.0159],[-58.8846,-28.0038],[-58.9097,-28.0],[-58.9459,-28.0],[-58.9833,-28.0],[-59.0286,-28.0],[-59.0675,-28.0],[-59.095,-28.0],[-59.1283,-28.0],[-59.1763,-27.9999],[-59.2153,-28.0],[-59.2518,-28.0001],[-59.3118,-28.0],[-59.3801,-28.0],[-59.4012,-28.0001],[-59.4015,-27.9847],[-59.4027,-27.9058],[-59.4036,-27.8407],[-59.4037,-27.8291],[-59.4038,-27.7509],[-59.4038,-27.7402],[-59.4038,-27.6752],[-59.4038,-27.6502],[-59.4038,-27.5994],[-59.4038,-27.5214],[-59.4038,-27.4676],[-59.4041,-27.4521],[-59.3628,-27.4513],[-59.3538,-27.4511],[-59.2846,-27.4498],[-59.2651,-27.4494],[-59.2172,-27.4485],[-59.1968,-27.4314],[-59.1868,-27.4229],[-59.1723,-27.4106],[-59.1498,-27.4306],[-59.1362,-27.4426],[-59.1152,-27.4613],[-59.0879,-27.4372],[-59.077,-27.4276],[-59.0314,-27.3874],[-59.021,-27.3782],[-59.0091,-27.3677],[-58.9964,-27.3565],[-58.9725,-27.3353],[-58.9389,-27.3634],[-58.9239,-27.3769],[-58.901,-27.3976],[-58.8845,-27.4124],[-58.8689,-27.4265],[-58.8753,-27.4353],[-58.8786,-27.4435],[-58.8805,-27.4473]]]],"22147":[[[[-60.2147,-27.615],[-60.2152,-27.7122],[-60.2153,-27.7271],[-60.2154,-27.7377],[-60.3426,-27.7377],[-60.3587,-27.7377],[-60.5219,-27.7372],[-60.5225,-27.6951],[-60.5227,-27.6837],[-60.5233,-27.647],[-60.4697,-27.6459],[-60.4686,-27.5667],[-60.4685,-27.5584],[-60.4678,-27.4666],[-60.5184,-27.4648],[-60.5183,-27.4548],[-60.5181,-27.4349],[-60.5177,-27.4053],[-60.517,-27.3524],[-60.5164,-27.3002],[-60.5157,-27.2482],[-60.5155,-27.2312],[-60.515,-27.1961],[-60.5146,-27.1641],[-60.5145,-27.1446],[-60.5145,-27.1298],[-60.514,-27.1026],[-60.5141,-27.0944],[-60.5138,-27.0546],[-60.5134,-27.0119],[-60.4945,-27.0165],[-60.4865,-27.0194],[-60.4466,-27.0335],[-60.413,-27.0454],[-60.341,-27.0709],[-60.3083,-27.0824],[-60.2858,-27.0902],[-60.2725,-27.0949],[-60.2627,-27.0984],[-60.252,-27.1022],[-60.244,-27.105],[-60.2284,-27.1105],[-60.2123,-27.1161],[-60.2121,-27.1372],[-60.2118,-27.1786],[-60.2116,-27.1952],[-60.212,-27.2162],[-60.2125,-27.2403],[-60.2128,-27.2681],[-60.2129,-27.2851],[-60.2132,-27.3077],[-60.2133,-27.3225],[-60.2137,-27.4128],[-60.214,-27.4683],[-60.2142,-27.5112],[-60.2146,-27.5885],[-60.2147,-27.6094],[-60.2147,-27.615]]]],"22039":[[[[-61.022,-27.539],[-61.0219,-27.5484],[-61.0218,-27.5569],[-61.0218,-27.565],[-61.0217,-27.5735],[-61.0217,-27.5818],[-61.0216,-27.5901],[-61.0195,-27.6126],[-61.0194,-27.6291],[-61.0785,-27.635],[-61.1264,-27.6353],[-61.1295,-27.7055],[-61.2405,-27.7056],[-61.2403,-27.7498],[-61.2402,-27.785],[-61.2401,-27.7942],[-61.284,-27.794],[-61.3492,-27.7935],[-61.4468,-27.795],[-61.5683,-27.7948],[-61.5688,-27.7583],[-61.5689,-27.7473],[-61.5693,-27.7142],[-61.5699,-27.6607],[-61.5705,-27.6086],[-61.5707,-27.5795],[-61.5709,-27.54],[-61.5712,-27.4802],[-61.5246,-27.48],[-61.5,-27.4799],[-61.4674,-27.4798],[-61.4562,-27.4797],[-61.3935,-27.4794],[-61.3245,-27.4791],[-61.2571,-27.4789],[-61.2251,-27.4788],[-61.1566,-27.4786],[-61.1454,-27.4786],[-61.0683,-27.4784],[-61.0381,-27.4783],[-61.0223,-27.4782],[-61.0222,-27.506],[-61.0221,-27.5144],[-61.0221,-27.5229],[-61.022,-27.5315],[-61.022,-27.539]]]],"22168":[[[[-59.8779,-26.3041],[-59.8556,-26.3042],[-59.8535,-26.3189],[-59.8038,-26.3193],[-59.8035,-26.365],[-59.8036,-26.4456],[-59.8036,-26.4556],[-59.8036,-26.4979],[-59.8036,-26.5187],[-59.8036,-26.5293],[-59.8525,-26.5302],[-59.8531,-26.5951],[-59.8533,-26.6122],[-59.8535,-26.6311],[-59.8539,-26.642],[-59.8537,-26.6604],[-59.8537,-26.6758],[-59.8538,-26.685],[-59.8539,-26.7024],[-59.8539,-26.7108],[-59.854,-26.7258],[-59.8541,-26.7526],[-59.8618,-26.7731],[-59.8708,-26.7938],[-59.8798,-26.8147],[-59.8891,-26.8362],[-59.8982,-26.8572],[-59.9073,-26.878],[-59.9165,-26.8993],[-59.9258,-26.9207],[-59.9349,-26.9416],[-59.9441,-26.9628],[-59.9532,-26.9839],[-59.96,-26.9996],[-59.966,-27.0135],[-59.9796,-27.0449],[-59.9837,-27.0542],[-59.993,-27.0758],[-60.004,-27.1011],[-60.0102,-27.1155],[-60.0371,-27.1775],[-60.028,-27.1808],[-59.983,-27.1965],[-60.0111,-27.1963],[-60.0108,-27.2376],[-60.0112,-27.2821],[-60.1127,-27.2857],[-60.2129,-27.2851],[-60.2128,-27.2681],[-60.2125,-27.2403],[-60.2121,-27.2227],[-60.2116,-27.1952],[-60.2118,-27.1802],[-60.2121,-27.1409],[-60.2122,-27.1226],[-60.2264,-27.1112],[-60.244,-27.105],[-60.252,-27.1022],[-60.2627,-27.0984],[-60.2722,-27.095],[-60.2483,-27.0396],[-60.2274,-26.9917],[-60.1832,-26.8905],[-60.1399,-26.7912],[-60.1359,-26.7821],[-60.0982,-26.6957],[-60.0944,-26.6871],[-60.0886,-26.6738],[-60.0774,-26.6777],[-60.0203,-26.6978],[-60.0059,-26.7029],[-60.0054,-26.6732],[-60.0042,-26.5676],[-60.0037,-26.5226],[-60.0029,-26.4611],[-60.002,-26.3556],[-60.0015,-26.3056],[-59.8779,-26.3041]]]],"22077":[[[[-59.1084,-27.2269],[-59.1001,-27.2296],[-59.0918,-27.2319],[-59.0838,-27.2356],[-59.0757,-27.2427],[-59.0677,-27.2513],[-59.0707,-27.2595],[-59.0712,-27.2679],[-59.0629,-27.2716],[-59.0587,-27.2798],[-59.0583,-27.288],[-59.05,-27.2932],[-59.0371,-27.2909],[-59.0286,-27.2834],[-59.0094,-27.3004],[-58.996,-27.3123],[-58.9866,-27.3207],[-58.9715,-27.334],[-58.9964,-27.3565],[-59.0091,-27.3677],[-59.021,-27.3782],[-59.0313,-27.3873],[-59.077,-27.4276],[-59.0879,-27.4372],[-59.1152,-27.4613],[-59.1362,-27.4426],[-59.1498,-27.4306],[-59.1723,-27.4106],[-59.1868,-27.4229],[-59.1968,-27.4314],[-59.2172,-27.4485],[-59.2651,-27.4494],[-59.2846,-27.4498],[-59.3538,-27.4511],[-59.3628,-27.4513],[-59.4041,-27.4521],[-59.4038,-27.4675],[-59.4197,-27.4676],[-59.4598,-27.4677],[-59.4715,-27.4678],[-59.5822,-27.4681],[-59.582,-27.4336],[-59.5815,-27.3632],[-59.5811,-27.3074],[-59.581,-27.2985],[-59.4597,-27.41],[-59.4383,-27.3908],[-59.4138,-27.3687],[-59.3952,-27.352],[-59.3189,-27.2834],[-59.3277,-27.2729],[-59.2863,-27.233],[-59.269,-27.248],[-59.23,-27.2127],[-59.1997,-27.1789],[-59.172,-27.1545],[-59.1376,-27.1851],[-59.1196,-27.2012],[-59.1104,-27.2094],[-59.0999,-27.2188],[-59.1084,-27.2269]]]],"22021":[[[[-60.2287,-26.6243],[-60.2503,-26.6733],[-60.2568,-26.6872],[-60.2839,-26.7504],[-60.293,-26.7712],[-60.3031,-26.7943],[-60.3066,-26.8024],[-60.3141,-26.8193],[-60.3254,-26.8452],[-60.3309,-26.8577],[-60.3357,-26.8686],[-60.3467,-26.8937],[-60.358,-26.9195],[-60.3688,-26.9441],[-60.38,-26.9698],[-60.3914,-26.996],[-60.4024,-27.0212],[-60.4107,-27.0401],[-60.4395,-27.036],[-60.4865,-27.0194],[-60.4945,-27.0165],[-60.5134,-27.0098],[-60.5346,-27.0021],[-60.5881,-26.9834],[-60.6004,-26.9792],[-60.6148,-26.9741],[-60.6748,-26.953],[-60.6945,-26.9461],[-60.6825,-26.9191],[-60.6756,-26.9034],[-60.6326,-26.8061],[-60.621,-26.7798],[-60.5827,-26.6932],[-60.5764,-26.679],[-60.561,-26.6441],[-60.5464,-26.6111],[-60.5301,-26.5743],[-60.5239,-26.5603],[-60.5092,-26.5271],[-60.4889,-26.5321],[-60.3685,-26.5747],[-60.3497,-26.5814],[-60.3216,-26.5914],[-60.2287,-26.6243]]]],"22049":[[[[-60.9924,-26.8232],[-60.9927,-26.842],[-61.0082,-26.8418],[-60.9676,-26.8695],[-60.9036,-26.9131],[-60.8951,-26.9188],[-60.8831,-26.927],[-60.8745,-26.9171],[-60.8514,-26.8899],[-60.8162,-26.9023],[-60.8161,-26.9315],[-60.8157,-27.0311],[-60.8156,-27.055],[-60.8158,-27.0679],[-60.8163,-27.1015],[-60.8167,-27.1237],[-60.817,-27.1376],[-60.8474,-27.1216],[-60.8572,-27.1149],[-60.8727,-27.1044],[-61.0359,-26.9929],[-61.0461,-26.9859],[-61.1949,-26.8843],[-61.2151,-26.8704],[-61.2065,-26.8603],[-61.1966,-26.8488],[-61.1897,-26.8407],[-61.2048,-26.8405],[-61.2472,-26.8401],[-61.3357,-26.8391],[-61.3339,-26.744],[-61.3323,-26.6603],[-61.3019,-26.6586],[-61.2716,-26.6588],[-61.1914,-26.6595],[-61.1709,-26.6597],[-61.1105,-26.6602],[-61.0457,-26.6608],[-61.0319,-26.6609],[-60.99,-26.6613],[-60.9902,-26.6717],[-60.9904,-26.6857],[-60.9906,-26.7],[-60.991,-26.727],[-60.9911,-26.7352],[-60.9917,-26.7756],[-60.9924,-26.8222],[-60.9924,-26.8232]]]],"22056":[[[[-59.1626,-26.9064],[-59.0282,-27.0274],[-59.0772,-27.0707],[-59.1635,-27.1469],[-59.172,-27.1545],[-59.1997,-27.1789],[-59.2325,-27.2079],[-59.2656,-27.2449],[-59.2808,-27.2377],[-59.3283,-27.2723],[-59.3178,-27.2817],[-59.3952,-27.352],[-59.4138,-27.3687],[-59.4383,-27.3908],[-59.4597,-27.41],[-59.579,-27.3003],[-59.5897,-27.2904],[-59.5997,-27.2812],[-59.5817,-27.2643],[-59.5551,-27.2405],[-59.5543,-27.2321],[-59.5542,-27.1685],[-59.554,-27.1076],[-59.5539,-27.0477],[-59.5538,-27.0147],[-59.5284,-27.0127],[-59.4992,-27.0126],[-59.4851,-27.0126],[-59.4029,-27.0124],[-59.4027,-27.0281],[-59.3774,-27.028],[-59.3527,-27.0273],[-59.3515,-26.984],[-59.3219,-26.9822],[-59.3011,-26.9821],[-59.3018,-27.0159],[-59.2663,-26.9846],[-59.2475,-26.9681],[-59.224,-26.9473],[-59.1701,-26.8998],[-59.1626,-26.9064]]]]},"corte_dep":"2026-03-31","estratos":{"labels":["Hasta 15 caprinos","Entre 16 y 30 caprinos","Entre 31 y 60 caprinos","Entre 61 y 120 caprinos","Entre 121 y 250 caprinos","Entre 251 y 500 caprinos","Entre 501 y 1.000 caprinos","Entre 1.001 y 2.500 caprinos","Entre 2.501 y 5.000 caprinos","Más de 5.000 caprinos"],"ordenes":[1,2,3,4,5,6,7,8,9,10],"prov":{"Chaco":{"1":0.080106,"2":0.178815,"3":0.281304,"4":0.232613,"5":0.133773,"6":0.063669,"7":0.020571,"8":0.009148},"Mendoza":{"1":0.006622,"2":0.016078,"3":0.044524,"4":0.10647,"5":0.234047,"6":0.33538,"7":0.19625,"8":0.060628},"Neuquén":{"1":0.003084,"2":0.006766,"3":0.025283,"4":0.068679,"5":0.170557,"6":0.304104,"7":0.343533,"8":0.077994},"Santiago del Estero":{"1":0.018762,"2":0.061347,"3":0.157083,"4":0.224764,"5":0.199099,"6":0.06505,"7":0.012909,"8":0.006587,"9":0.014648,"10":0.239751}}},"pob":{"22007":37794,"22014":28060,"22021":101086,"22028":34493,"22036":23179,"22039":8310,"22043":10643,"22049":12807,"22056":15061,"22063":68429,"22070":21948,"22077":13775,"22084":65304,"22091":26354,"22098":59798,"22105":30223,"22112":21544,"22119":13938,"22126":14265,"22133":32430,"22140":413764,"22147":16045,"22154":18696,"22161":4051,"22168":32606},"pob_fuente":"Censo 2022 (INDEC), población en viviendas particulares; apertura urbano/rural por variable URP","rural":{"22007":{"t":37794,"u":34174,"ra":1208,"rd":2412},"22014":{"t":28060,"u":21779,"ra":2528,"rd":3753},"22021":{"t":101086,"u":96866,"ra":0,"rd":4220},"22028":{"t":34493,"u":30968,"ra":0,"rd":3525},"22036":{"t":23179,"u":20495,"ra":1070,"rd":1614},"22039":{"t":8310,"u":6708,"ra":617,"rd":985},"22043":{"t":10643,"u":8367,"ra":1039,"rd":1237},"22049":{"t":12807,"u":11915,"ra":0,"rd":892},"22056":{"t":15061,"u":12606,"ra":1106,"rd":1349},"22063":{"t":68429,"u":48233,"ra":9671,"rd":10525},"22070":{"t":21948,"u":20251,"ra":196,"rd":1501},"22077":{"t":13775,"u":10841,"ra":1192,"rd":1742},"22084":{"t":65304,"u":52928,"ra":5335,"rd":7041},"22091":{"t":26354,"u":21170,"ra":607,"rd":4577},"22098":{"t":59798,"u":55527,"ra":1591,"rd":2680},"22105":{"t":30223,"u":27002,"ra":188,"rd":3033},"22112":{"t":21544,"u":19362,"ra":0,"rd":2182},"22119":{"t":13938,"u":12296,"ra":0,"rd":1642},"22126":{"t":14265,"u":11365,"ra":1306,"rd":1594},"22133":{"t":32430,"u":27349,"ra":1086,"rd":3995},"22140":{"t":413764,"u":409912,"ra":876,"rd":2976},"22147":{"t":16045,"u":13157,"ra":1362,"rd":1526},"22154":{"t":18696,"u":15520,"ra":261,"rd":2915},"22161":{"t":4051,"u":0,"ra":3415,"rd":636},"22168":{"t":32606,"u":27653,"ra":1333,"rd":3620}}};
+/* ---------- helpers ---------- */
+const fmt  = n => Math.round(n).toLocaleString('es-AR');
+const fmt1 = n => n.toLocaleString('es-AR', {minimumFractionDigits:1, maximumFractionDigits:1});
+const fmt2 = n => n.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const $ = id => document.getElementById(id);
+
+const PAL = {
+  light:{ramp:['#cde2fb','#9ec5f4','#6da7ec','#3987e5','#256abf','#184f95','#0d366b'],
+         accent:'#2a78d6', hi:'#eb6834', surface1:'#fcfcfb',
+         textPrimary:'#0b0b0b', textMuted:'#78766f', border:'#e2e0da'},
+  dark: {ramp:['#0d366b','#184f95','#1c5cab','#256abf','#2a78d6','#3987e5','#6da7ec'],
+         accent:'#3987e5', hi:'#d95926', surface1:'#1a1a19',
+         textPrimary:'#ffffff', textMuted:'#8e8c82', border:'#33322f'}
+};
+const RAMP_N = 7;
+function isDark(){
+  const t = document.documentElement.dataset.theme;
+  return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+}
+const pal = () => PAL[isDark() ? 'dark' : 'light'];
+
+const tip = $('tip');
+function showTip(e, html){
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const r = tip.getBoundingClientRect();
+  let x = e.clientX + 14, y = e.clientY + 14;
+  if (x + r.width  > innerWidth  - 8) x = e.clientX - r.width  - 14;
+  if (y + r.height > innerHeight - 8) y = e.clientY - r.height - 14;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+const hideTip = () => tip.style.opacity = 0;
+
+/* ---------- theme ---------- */
+const themeBtn = $('theme');
+function syncTheme(){
+  themeBtn.textContent = isDark() ? 'Modo claro' : 'Modo oscuro';
+  redrawAll();
+}
+themeBtn.onclick = () => { document.documentElement.dataset.theme = isDark() ? 'light' : 'dark'; syncTheme(); };
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncTheme);
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(o => {
+    const on = o === t;
+    o.setAttribute('aria-selected', on);
+    $(o.getAttribute('aria-controls')).hidden = !on;
+  });
+  if (t.id === 'tab-map') drawMap(); else drawEvo();
+});
+
+/* ================= datos ================= */
+const ANIOS = DATA.anios;
+const CAT = [
+  {k:'total',    lab:'Total caprinos', cat:false},
+  {k:'cabra',    lab:'Cabras',         cat:true},
+  {k:'cabrito',  lab:'Cabritos',       cat:true},
+  {k:'chivo',    lab:'Chivos',         cat:true},
+  {k:'cabrilla', lab:'Cabrillas/chivitos', cat:true},
+  {k:'capon',    lab:'Capones',        cat:true},
+  {k:'estab',    lab:'Establecimientos', cat:false},
+  {k:'up',       lab:'Unidades productivas', cat:false},
+  {k:'capEst',   lab:'Caprinos por establecimiento', cat:false, dec:true, noShare:true},
+  {k:'capUP',    lab:'Caprinos por unidad productiva', cat:false, dec:true, noShare:true},
+  {k:'upEst',    lab:'Unidades por establecimiento', cat:false, dec:true, noShare:true},
+  {k:'estPob',   lab:'Establecimientos por 1.000 hab.', cat:false, dec:true, noShare:true},
+  {k:'capPob',   lab:'Caprinos por habitante', cat:false, dec:true, noShare:true},
+  {k:'estRur',   lab:'Establecimientos por 1.000 hab. rurales', cat:false, dec:true, noShare:true},
+  {k:'capRur',   lab:'Caprinos por hab. rural', cat:false, dec:true, noShare:true},
+  {k:'pctRur',   lab:'% de población rural', cat:false, dec:true, noShare:true, pct:true}
+];
+const catDe = k => CAT.find(c => c.k === k);
+const fmtVar = (v,k) => (catDe(k).dec ? fmt1(v) : fmt(v)) + (catDe(k).pct ? '%' : '');
+let vk = 'total', selDep = null, depSort = {k:1, dir:-1};
+let yi = ANIOS.length - 1;
+
+/* indicadores per cápita: densidad de productores y de animales sobre la población */
+for (const [id,v] of Object.entries(DATA.dep)){
+  const p = DATA.pob[id] || 0;
+  const R = DATA.rural[id] || {ra:0, rd:0};
+  const r = R.ra + R.rd;               // rural agrupada + rural dispersa
+  v.pob    = p;
+  v.pobRur = r;
+  v.pctRur = p ? r/p*100 : 0;
+  v.estPob = p ? v.estab/p*1000 : 0;   // establecimientos cada 1.000 habitantes
+  v.capPob = p ? v.total/p : 0;        // caprinos por habitante
+  v.estRur = r ? v.estab/r*1000 : 0;   // establecimientos cada 1.000 habitantes rurales
+  v.capRur = r ? v.total/r : 0;        // caprinos por habitante rural
+}
+const depList = () => Object.entries(DATA.dep).map(([id,v]) => ({id, n: DATA.nombres[id], ...v}));
+const totalPais = y => Object.values(DATA.serie[y]).reduce((s,v) => s + (v.total||0), 0);
+const chacoAnio = y => DATA.serie[y]['Chaco'] || {};
+
+/* ================= PANEL 1: mapa ================= */
+$('segVar').innerHTML = CAT.map(c =>
+  `<button type="button" data-k="${c.k}" aria-pressed="${c.k===vk}">${c.lab}</button>`).join('');
+$('segVar').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  vk = b.dataset.k;
+  [...$('segVar').children].forEach(o => o.setAttribute('aria-pressed', o.dataset.k === vk));
+  depSort = {k:1, dir:-1};
+  drawMap();
+};
+
+let PROJ = null;
+const MAPW = 620, MAPH = 560;
+function buildProj(w, h, pad){
+  let x0=180,y0=90,x1=-180,y1=-90;
+  for (const polys of Object.values(DATA.geo))
+    for (const rings of polys) for (const p of rings[0]){
+      if(p[0]<x0)x0=p[0]; if(p[0]>x1)x1=p[0];
+      if(p[1]<y0)y0=p[1]; if(p[1]>y1)y1=p[1];
+    }
+  const cy=(y0+y1)/2, kx=Math.cos(cy*Math.PI/180);
+  const dw=(x1-x0)*kx, dh=(y1-y0);
+  const s=Math.min((w-2*pad)/dw,(h-2*pad)/dh);
+  const ox=(w-dw*s)/2, oy=(h-dh*s)/2;
+  return p => [ox+(p[0]-x0)*kx*s, oy+(y1-p[1])*s];
+}
+const dPath = polys => {
+  let d='';
+  for (const rings of polys) for (const r of rings)
+    d += 'M' + r.map(p => { const q=PROJ(p); return q[0].toFixed(1)+' '+q[1].toFixed(1); }).join('L') + 'Z';
+  return d;
+};
+function colorScale(vals){
+  const sorted=[...vals].sort((a,b)=>a-b);
+  const q = t => { const i=(sorted.length-1)*t, lo=Math.floor(i), hi=Math.ceil(i);
+                   return sorted[lo]+(sorted[hi]-sorted[lo])*(i-lo); };
+  const ramp=pal().ramp, breaks=[];
+  for (let i=1;i<RAMP_N;i++) breaks.push(q(i/RAMP_N));
+  return v => { let i=0; while(i<breaks.length && v>=breaks[i]) i++; return ramp[i]; };
+}
+function tipDep(id){
+  const d = DATA.dep[id];
+  if (!d) return `<div class="t">${DATA.nombres[id]}</div><div class="l">sin dato</div>`;
+  return `<div class="t">${DATA.nombres[id]}</div>
+    <div class="l"><span>Total caprinos</span><b>${fmt(d.total)}</b></div>
+    <div class="l"><span>Cabras</span><b>${fmt(d.cabra)}</b></div>
+    <div class="l"><span>Cabritos</span><b>${fmt(d.cabrito)}</b></div>
+    <div class="l"><span>Chivos</span><b>${fmt(d.chivo)}</b></div>
+    <div class="l"><span>Cabrillas/chivitos</span><b>${fmt(d.cabrilla)}</b></div>
+    <div class="l"><span>Capones</span><b>${fmt(d.capon)}</b></div>
+    <div class="l"><span>Establecimientos</span><b>${fmt(d.estab)}</b></div>
+    <div class="l"><span>Unidades productivas</span><b>${fmt(d.up)}</b></div>
+    <div class="l"><span>Caprinos/estab.</span><b>${fmt1(d.capEst)}</b></div>
+    <div class="l"><span>Caprinos/unidad</span><b>${fmt1(d.capUP)}</b></div>
+    <div class="l"><span>Unidades/estab.</span><b>${fmt2(d.upEst)}</b></div>
+    <div class="l"><span>Población total</span><b>${fmt(d.pob)}</b></div>
+    <div class="l"><span>Pobl. rural</span><b>${fmt(d.pobRur)}</b></div>
+    <div class="l"><span>Rural / total</span><b>${fmt1(d.pctRur)}%</b></div>
+    <div class="l"><span>Estab. c/1.000 hab.</span><b>${fmt1(d.estPob)}</b></div>
+    <div class="l"><span>Estab. c/1.000 rurales</span><b>${fmt1(d.estRur)}</b></div>
+    <div class="l"><span>Caprinos por hab. rural</span><b>${fmt1(d.capRur)}</b></div>`;
+}
+/* un promedio de promedios no es el promedio provincial: se recalcula sobre los totales */
+function provProm(k, ds, tot, est){
+  const up  = ds.reduce((s,d) => s+(d.up||0), 0);
+  const pob = ds.reduce((s,d) => s+(d.pob||0), 0);
+  if (k === 'capEst') return est ? tot/est : 0;
+  if (k === 'capUP')  return up  ? tot/up  : 0;
+  if (k === 'upEst')  return est ? up/est  : 0;
+  if (k === 'estPob') return pob ? est/pob*1000 : 0;
+  if (k === 'capPob') return pob ? tot/pob : 0;
+  const rur = ds.reduce((s,d) => s+(d.pobRur||0), 0);
+  if (k === 'estRur') return rur ? est/rur*1000 : 0;
+  if (k === 'capRur') return rur ? tot/rur : 0;
+  if (k === 'pctRur') return pob ? rur/pob*100 : 0;
+  return 0;
+}
+
+function drawMap(){
+  const svg = $('map');
+  if (!svg.dataset.built){
+    svg.setAttribute('viewBox', `0 0 ${MAPW} ${MAPH}`);
+    PROJ = buildProj(MAPW, MAPH, 14);
+    svg.innerHTML = Object.keys(DATA.geo).map(id =>
+      `<path data-id="${id}" d="${dPath(DATA.geo[id])}"><title>${DATA.nombres[id]}</title></path>`).join('');
+    svg.querySelectorAll('path').forEach(p => {
+      const id = p.dataset.id;
+      p.onmousemove = e => showTip(e, tipDep(id));
+      p.onmouseleave = hideTip;
+      p.onclick = () => { selDep = selDep === id ? null : id; drawMap(); };
+    });
+    svg.dataset.built = '1';
+  }
+  const ds = depList(), vals = ds.map(d => d[vk] || 0), scale = colorScale(vals);
+  svg.querySelectorAll('path').forEach(p => {
+    const d = DATA.dep[p.dataset.id];
+    p.setAttribute('fill', d ? scale(d[vk]||0) : pal().border);
+    p.classList.toggle('sel', p.dataset.id === selDep);
+  });
+  $('rampSteps').innerHTML = pal().ramp.map(c => `<i style="background:${c}"></i>`).join('');
+  $('rampLo').textContent = fmtVar(Math.min(...vals), vk);
+  $('rampHi').textContent = fmtVar(Math.max(...vals), vk);
+
+  const tot = ds.reduce((s,d) => s + (d.total||0), 0);
+  const est = ds.reduce((s,d) => s + (d.estab||0), 0);
+  const top = [...ds].sort((a,b) => (b[vk]||0)-(a[vk]||0))[0];
+  const lab = CAT.find(c => c.k === vk).lab;
+  $('mapTiles').innerHTML = `
+    <div class="tile"><div class="lab">Total caprinos en Chaco</div><div class="val">${fmt(tot)}</div>
+      <div class="meta">${ds.length} departamentos · corte ${DATA.corte_dep}</div></div>
+    <div class="tile"><div class="lab">Establecimientos</div><div class="val">${fmt(est)}</div>
+      <div class="meta">${fmt1(tot/est)} caprinos por establecimiento</div></div>
+    <div class="tile"><div class="lab">Líder en ${lab.toLowerCase()}</div><div class="val" style="font-size:22px">${top.n}</div>
+      <div class="meta"><b>${fmtVar(top[vk]||0, vk)}</b> · ${catDe(vk).noShare
+        ? `provincia: ${fmtVar(provProm(vk, ds, tot, est), vk)}`
+        : `${fmt1((top[vk]||0)/vals.reduce((a,b)=>a+b,0)*100)}% de la provincia`}</div></div>`;
+
+  const w = $('catWarn'), esCat = CAT.find(c => c.k === vk).cat;
+  w.hidden = !esCat;
+  if (esCat) w.innerHTML = `<b>Posible inconsistencia en el desglose por categoría (2026).</b>
+    En las planillas de 2026, las columnas <i>cabra</i> y <i>cabrito</i> presentan valores compatibles con
+    un intercambio respecto de los años anteriores: a nivel nacional las cabras pasan de 2.540.001 (2025)
+    a 682.310, y los cabritos de 709.048 a 2.493.481. Una relación de 3,6 cabritos por cabra no resulta
+    plausible zootécnicamente. El <b>total</b> no se ve afectado y es la variable recomendada para comparar.`;
+
+  const t10 = [...ds].sort((a,b) => (b[vk]||0)-(a[vk]||0)).slice(0,10);
+  const max = t10[0][vk] || 1;
+  $('mapBars').innerHTML = t10.map(d =>
+    `<div class="row${d.id===selDep?' on':''}" data-id="${d.id}">
+      <span class="nm">${d.n}</span>
+      <span class="track"><span class="bar" style="width:${((d[vk]||0)/max*100).toFixed(2)}%;background:${scale(d[vk]||0)}"></span></span>
+      <span class="v">${fmtVar(d[vk]||0, vk)}</span></div>`).join('');
+  $('mapBars').querySelectorAll('.row').forEach(r => {
+    r.onmousemove = e => showTip(e, tipDep(r.dataset.id));
+    r.onmouseleave = hideTip;
+    r.onclick = () => { selDep = selDep === r.dataset.id ? null : r.dataset.id; drawMap(); };
+  });
+  drawDepTbl(ds, scale);
+}
+
+function drawDepTbl(ds, scale){
+  const cols = [{k:'n',lab:'Departamento'},{k:'total',lab:'Total'},{k:'cabra',lab:'Cabras'},
+    {k:'cabrito',lab:'Cabritos'},{k:'chivo',lab:'Chivos'},{k:'cabrilla',lab:'Cabrillas'},
+    {k:'capon',lab:'Capones'},{k:'estab',lab:'Establec.'},{k:'up',lab:'Unid. prod.'},
+    {k:'capEst',lab:'Caprinos/estab.'},{k:'capUP',lab:'Caprinos/unidad'},
+    {k:'upEst',lab:'Unid./estab.'},{k:'pob',lab:'Población'},
+    {k:'pobRur',lab:'Pobl. rural'},{k:'pctRur',lab:'% rural'},
+    {k:'estPob',lab:'Estab./1.000 hab.'},{k:'capPob',lab:'Caprinos/hab.'},
+    {k:'estRur',lab:'Estab./1.000 hab. rur.'},{k:'capRur',lab:'Caprinos/hab. rural'},
+    {k:'share',lab:'% prov.'}];
+  const tot = ds.reduce((s,d) => s+(d.total||0), 0);
+  const enr = ds.map(d => ({...d, share: d.total/tot*100}));
+  if (depSort.k >= cols.length) depSort = {k:1, dir:-1};
+  const sk = cols[depSort.k].k;
+  enr.sort((a,b) => sk === 'n' ? a.n.localeCompare(b.n,'es')*depSort.dir
+                               : ((a[sk]||0)-(b[sk]||0))*depSort.dir);
+  $('depTbl').innerHTML =
+    `<thead><tr>${cols.map((c,i) => `<th data-i="${i}">${c.lab} <span class="ar">${
+      depSort.k===i ? (depSort.dir<0?'▼':'▲') : '↕'}</span></th>`).join('')}</tr></thead>` +
+    `<tbody>${enr.map(d => `<tr data-id="${d.id}"${d.id===selDep?' class="sel"':''}>
+      <td><span class="chip" style="background:${scale(d[vk]||0)}"></span>${d.n}</td>
+      <td>${fmt(d.total)}</td><td>${fmt(d.cabra)}</td><td>${fmt(d.cabrito)}</td><td>${fmt(d.chivo)}</td>
+      <td>${fmt(d.cabrilla)}</td><td>${fmt(d.capon)}</td><td>${fmt(d.estab)}</td><td>${fmt(d.up)}</td>
+      <td>${fmt1(d.capEst)}</td><td>${fmt1(d.capUP)}</td><td>${fmt2(d.upEst)}</td>
+      <td>${fmt(d.pob)}</td><td>${fmt(d.pobRur)}</td><td>${fmt1(d.pctRur)}%</td>
+      <td>${fmt1(d.estPob)}</td><td>${fmt2(d.capPob)}</td>
+      <td>${fmt1(d.estRur)}</td><td>${fmt1(d.capRur)}</td>
+      <td>${fmt1(d.share)}%</td></tr>`).join('')}</tbody>`;
+  $('depTbl').querySelectorAll('th').forEach(th => th.onclick = () => {
+    const i = +th.dataset.i;
+    depSort = {k:i, dir: depSort.k === i ? -depSort.dir : -1};
+    drawMap();
+  });
+  $('depTbl').querySelectorAll('tbody tr').forEach(tr => tr.onclick = () => {
+    selDep = selDep === tr.dataset.id ? null : tr.dataset.id; drawMap();
+  });
+}
+
+/* ================= PANEL 2: evolución ================= */
+const yrSl = $('yrSlider');
+yrSl.max = ANIOS.length - 1; yrSl.value = yi;
+yrSl.oninput = () => { yi = +yrSl.value; drawEvo(); };
+
+$('evoWarn').innerHTML = `<b>El total es comparable en toda la serie; el desglose por categoría no.</b>
+  En 2026 las columnas <i>cabra</i> y <i>cabrito</i> presentan un aparente intercambio respecto de 2008–2025
+  (detalle en la pestaña anterior). Adicionalmente, hasta 2008 no se registraban capones ni cabrillas:
+  esas categorías figuran en cero por criterio de relevamiento, no por ausencia de animales.`;
+
+/* grafico de linea con hover */
+function lineChart(svgId, pts, fmtV, unidad){
+  const svg = $(svgId), W = 760, H = 260, L = 54, R = 14, T = 16, B = 30;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const P_ = pal();
+  const vals = pts.map(p => p.v);
+  // escala con cortes "redondos": el eje se lee mejor que con los extremos crudos
+  const paso = bruto => {
+    const e = Math.pow(10, Math.floor(Math.log10(bruto)));
+    return [1,2,2.5,5,10].map(m => m*e).find(v => v >= bruto) || 10*e;
+  };
+  const rawLo = Math.min(...vals), rawHi = Math.max(...vals);
+  const step = paso((rawHi - rawLo || rawHi || 1) / 3.2);
+  let lo = Math.max(0, Math.floor(rawLo/step - .35) * step);
+  let hi = Math.ceil(rawHi/step + .35) * step;
+  if (hi === lo) hi = lo + step;
+  const ticks = [];
+  for (let v = lo; v <= hi + 1e-9; v += step) ticks.push(v);
+  const X = i => L + i * (W-L-R)/(pts.length-1);
+  const Y = v => H - B - (v - lo)/(hi - lo) * (H-T-B);
+  let out = '';
+  for (const v of ticks){
+    const y = Y(v);
+    out += `<line class="gl" x1="${L}" y1="${y.toFixed(1)}" x2="${W-R}" y2="${y.toFixed(1)}"/>`;
+    out += `<text class="ax" x="${L-8}" y="${(y+3.5).toFixed(1)}" text-anchor="end">${fmtV(v)}</text>`;
+  }
+  // eje x: primero, ultimo y cada 4
+  pts.forEach((p,i) => {
+    if (i===0 || i===pts.length-1 || i%4===0)
+      out += `<text class="ax" x="${X(i).toFixed(1)}" y="${H-10}" text-anchor="middle">${p.a}</text>`;
+  });
+  out += `<path d="M${pts.map((p,i)=>`${X(i).toFixed(1)} ${Y(p.v).toFixed(1)}`).join('L')}"
+    fill="none" stroke="${P_.accent}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  out += pts.map((p,i) => `<circle cx="${X(i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="${i===yi?5:3}"
+    fill="${i===yi?P_.hi:P_.accent}" stroke="${P_.surface1}" stroke-width="2"/>`).join('');
+  // capa de hover: franjas invisibles
+  out += pts.map((p,i) => `<rect x="${(X(i)-(W-L-R)/(pts.length-1)/2).toFixed(1)}" y="${T}"
+    width="${((W-L-R)/(pts.length-1)).toFixed(1)}" height="${H-T-B}" fill="transparent"
+    data-i="${i}" style="cursor:pointer"/>`).join('');
+  svg.innerHTML = out;
+  svg.querySelectorAll('rect[data-i]').forEach(r => {
+    const i = +r.dataset.i, p = pts[i];
+    r.onmousemove = e => showTip(e, `<div class="t">${p.a}</div>
+      <div class="l"><span>${unidad}</span><b>${fmtV(p.v)}</b></div>` +
+      (i>0 ? `<div class="l"><span>vs año anterior</span><b>${
+        (p.v-pts[i-1].v>=0?'+':'−')}${fmt1(Math.abs((p.v-pts[i-1].v)/pts[i-1].v*100))}%</b></div>` : ''));
+    r.onmouseleave = hideTip;
+    r.onclick = () => { yi = i; yrSl.value = i; drawEvo(); };
+  });
+}
+
+function drawEvo(){
+  const y = ANIOS[yi];
+  $('yrLabel').textContent = y;
+  $('yrCount').textContent = `Año ${yi+1} de ${ANIOS.length}`;
+
+  const ch = chacoAnio(y), tp = totalPais(y);
+  const chTot = ch.total || 0;
+  const primero = chacoAnio(ANIOS[0]).total || 0;
+  const orden = Object.entries(DATA.serie[y]).sort((a,b) => (b[1].total||0)-(a[1].total||0));
+  const puesto = orden.findIndex(([n]) => n === 'Chaco') + 1;
+
+  $('evoTiles').innerHTML = `
+    <div class="tile"><div class="lab">Chaco ${y}</div><div class="val">${fmt(chTot)}</div>
+      <div class="meta">puesto ${puesto} de ${orden.length} provincias</div></div>
+    <div class="tile"><div class="lab">Participación nacional</div><div class="val">${fmt1(chTot/tp*100)}%</div>
+      <div class="meta">país: ${fmt(tp)} caprinos</div></div>
+    <div class="tile"><div class="lab">Variación desde ${ANIOS[0]}</div>
+      <div class="val">${chTot>=primero?'+':'−'}${fmt1(Math.abs((chTot-primero)/primero*100))}%</div>
+      <div class="meta">${fmt(primero)} → ${fmt(chTot)}</div></div>`;
+
+  lineChart('lnChaco', ANIOS.map(a => ({a, v: (chacoAnio(a).total)||0})), fmt, 'Caprinos en Chaco');
+  lineChart('lnShare', ANIOS.map(a => ({a, v: ((chacoAnio(a).total)||0)/totalPais(a)*100})),
+            v => fmt1(v)+'%', 'Participación de Chaco');
+
+  const max = orden[0][1].total || 1;
+  $('provBars').innerHTML = orden.map(([n,v]) => {
+    const on = n === 'Chaco';
+    return `<div class="row${on?' on':''}" data-n="${n}">
+      <span class="nm">${n}</span>
+      <span class="track"><span class="bar" style="width:${((v.total||0)/max*100).toFixed(2)}%"></span></span>
+      <span class="v">${fmt(v.total||0)}</span></div>`;
+  }).join('');
+  $('provBars').querySelectorAll('.row').forEach(r => {
+    const v = DATA.serie[y][r.dataset.n];
+    r.onmousemove = e => showTip(e, `<div class="t">${r.dataset.n} · ${y}</div>
+      <div class="l"><span>Total</span><b>${fmt(v.total||0)}</b></div>
+      <div class="l"><span>% del país</span><b>${fmt2((v.total||0)/tp*100)}%</b></div>`);
+    r.onmouseleave = hideTip;
+  });
+  drawSerieTbl();
+}
+
+let serieSort = {k:0, dir:1};
+function drawSerieTbl(){
+  const cols = [{k:'a',lab:'Año'},{k:'total',lab:'Total'},{k:'cabra',lab:'Cabras'},
+    {k:'cabrito',lab:'Cabritos'},{k:'chivo',lab:'Chivos'},{k:'cabrilla',lab:'Cabrillas'},
+    {k:'capon',lab:'Capones'},{k:'share',lab:'% del país'}];
+  const rows = ANIOS.map(a => {
+    const v = chacoAnio(a);
+    return {a, ...v, share: (v.total||0)/totalPais(a)*100};
+  });
+  const sk = cols[serieSort.k].k;
+  rows.sort((x,z) => sk === 'a' ? (x.a < z.a ? -1 : 1)*serieSort.dir*-1
+                                : ((x[sk]||0)-(z[sk]||0))*serieSort.dir);
+  $('serieTbl').innerHTML =
+    `<thead><tr>${cols.map((c,i) => `<th data-i="${i}">${c.lab} <span class="ar">${
+      serieSort.k===i ? (serieSort.dir<0?'▼':'▲') : '↕'}</span></th>`).join('')}</tr></thead>` +
+    `<tbody>${rows.map(r => `<tr${r.a===ANIOS[yi]?' class="sel"':''}>
+      <td>${r.a}</td><td>${fmt(r.total||0)}</td><td>${fmt(r.cabra||0)}</td><td>${fmt(r.cabrito||0)}</td>
+      <td>${fmt(r.chivo||0)}</td><td>${fmt(r.cabrilla||0)}</td><td>${fmt(r.capon||0)}</td>
+      <td>${fmt2(r.share)}%</td></tr>`).join('')}</tbody>`;
+  $('serieTbl').querySelectorAll('th').forEach(th => th.onclick = () => {
+    const i = +th.dataset.i;
+    serieSort = {k:i, dir: serieSort.k === i ? -serieSort.dir : -1};
+    drawSerieTbl();
+  });
+}
+
+/* ---------- boot ---------- */
+function redrawAll(){
+  if ($('map').dataset.built) drawMap();
+  drawEstratos();
+  if (!$('p-evo').hidden) drawEvo();
+}
+
+/* ================= estratos de tamaño (provincial) ================= */
+const EST = DATA.estratos;
+const ORD = EST.ordenes.map(String);
+
+/* Los estratos son ORDINALES (clases de tamaño ordenadas), no categorías sueltas:
+   corresponde una rampa secuencial, no colores distintos. Se descarta el paso más
+   cercano a la superficie para que el primer estrato no se confunda con el fondo. */
+function hex2rgb(h){ return [1,3,5].map(i => parseInt(h.slice(i,i+2),16)); }
+function mix(a,b,t){
+  const A=hex2rgb(a), B=hex2rgb(b);
+  return '#' + A.map((v,i) => Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');
+}
+function ordinalColors(n){
+  const r = pal().ramp.slice(1);            // sin el paso pegado a la superficie
+  if (n === 1) return [r[r.length-1]];
+  return Array.from({length:n}, (_,i) => {
+    const p = i/(n-1)*(r.length-1), lo = Math.floor(p), hi = Math.min(r.length-1, lo+1);
+    return mix(r[lo], r[hi], p-lo);
+  });
+}
+
+function drawEstratos(){
+  const provs = Object.keys(EST.prov);
+  const cols = ordinalColors(ORD.length);
+  const chaco = EST.prov['Chaco'] || {};
+  const tope = Math.max(...ORD.filter(o => (chaco[o]||0) > 0).map(Number));
+  const labTope = EST.labels[EST.ordenes.indexOf(tope)];
+
+  $('estWarn').innerHTML = `<b>Unidad de medida: participación del stock de animales, no de establecimientos.</b>
+    Un valor de 28% en el estrato 31–60 indica que el 28% de los animales se encuentra en majadas de ese
+    tamaño, no que el 28% de los establecimientos tenga ese tamaño. La apertura es <b>provincial</b>:
+    no existe a nivel departamental, por lo que no admite representación cartográfica.
+    Se encuentran publicadas ${provs.length} provincias.`;
+
+  // Chaco primero; el resto por tamaño medio (share en estratos grandes) descendente
+  const peso = p => ORD.reduce((s,o,i) => s + (EST.prov[p][o]||0)*i, 0);
+  const orden = [...provs].sort((a,b) => a==='Chaco' ? -1 : b==='Chaco' ? 1 : peso(a)-peso(b));
+
+  $('estChart').innerHTML = orden.map(p => {
+    const d = EST.prov[p];
+    const segs = ORD.map((o,i) => ({o, i, v: d[o]||0})).filter(x => x.v > 0);
+    const mayor = segs.reduce((a,b) => b.v > a.v ? b : a);
+    return `<div class="estrow" data-p="${p}">
+      <div class="hd"><b>${p}</b><span>mayor peso: ${EST.labels[mayor.i]} (${fmt1(mayor.v*100)}%)</span></div>
+      <div class="stk">${segs.map(x =>
+        `<i data-p="${p}" data-i="${x.i}" style="width:${(x.v*100).toFixed(3)}%;background:${cols[x.i]}"></i>`
+      ).join('')}</div></div>`;
+  }).join('');
+
+  $('estChart').querySelectorAll('.stk i').forEach(el => {
+    const p = el.dataset.p, i = +el.dataset.i;
+    const v = EST.prov[p][ORD[i]] || 0;
+    el.onmousemove = e => showTip(e, `<div class="t">${p}</div>
+      <div class="l"><span>Estrato</span><b>${EST.labels[i]}</b></div>
+      <div class="l"><span>Share del stock</span><b>${fmt1(v*100)}%</b></div>` +
+      (p === 'Chaco' ? `<div class="l"><span>Caprinos de Chaco</span><b>${
+        fmt(v * Object.values(DATA.dep).reduce((s,x) => s+x.total, 0))}</b></div>` : ''));
+    el.onmouseleave = hideTip;
+  });
+
+  $('estLeg').innerHTML = EST.labels.map((l,i) =>
+    `<span class="k"><i class="sw" style="background:${cols[i]}"></i> ${l}</span>`).join('');
+
+  $('estTbl').innerHTML =
+    `<thead><tr><th>Provincia</th>${EST.labels.map(l =>
+      `<th>${l.replace(' caprinos','')}</th>`).join('')}</tr></thead>` +
+    `<tbody>${orden.map(p => `<tr${p==='Chaco'?' class="sel"':''}><td>${p}</td>` +
+      ORD.map(o => `<td>${EST.prov[p][o] !== undefined ? fmt1(EST.prov[p][o]*100)+'%' : '—'}</td>`).join('') +
+      `</tr>`).join('')}</tbody>`;
+}
+
+/* ---------- arranque (al final: EST y demás const deben estar inicializados) ---------- */
+drawMap();
+drawEvo();
+drawEstratos();
+syncTheme();
+</script></body></html>

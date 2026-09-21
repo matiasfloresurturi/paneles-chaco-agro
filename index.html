@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paneles productivos del Chaco</title>
+<style>
+:root{
+  color-scheme: light;
+  --surface-0:#f4f3f0; --surface-1:#fcfcfb; --border:#e2e0da; --border-strong:#c9c6bd;
+  --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#78766f;
+  --accent:#2a78d6; --hi:#eb6834;
+  --shadow:0 1px 2px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  color-scheme: dark;
+  --surface-0:#111110; --surface-1:#1a1a19; --border:#33322f; --border-strong:#4a4945;
+  --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#8e8c82;
+  --accent:#3987e5; --hi:#d95926;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --surface-0:#111110; --surface-1:#1a1a19; --border:#33322f; --border-strong:#4a4945;
+  --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#8e8c82;
+  --accent:#3987e5; --hi:#d95926;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--surface-0);color:var(--text-primary);
+  font:400 15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding:48px 16px 64px}
+h1{font-size:27px;line-height:1.2;margin:0 0 8px;letter-spacing:-.02em;font-weight:650}
+.sub{color:var(--text-secondary);font-size:14.5px;margin:0 0 36px;max-width:64ch}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+a.card{display:block;text-decoration:none;color:inherit;background:var(--surface-1);
+  border:1px solid var(--border);border-radius:12px;padding:22px 24px;box-shadow:var(--shadow);
+  transition:border-color .15s, transform .15s}
+a.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+a.card h2{font-size:17px;margin:0 0 8px;font-weight:640;letter-spacing:-.01em}
+a.card p{font-size:13.5px;color:var(--text-secondary);margin:0 0 14px;line-height:1.55}
+a.card .tags{font-size:11.5px;color:var(--text-muted);text-transform:uppercase;
+  letter-spacing:.06em;font-weight:600}
+h3{font-size:14px;margin:40px 0 10px;font-weight:640}
+ul{margin:0;padding-left:20px;color:var(--text-secondary);font-size:13.5px;line-height:1.8}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--border);
+  color:var(--text-muted);font-size:12.5px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Paneles productivos del Chaco</h1>
+  <p class="sub">Visualizaciones interactivas sobre apicultura y ganadería caprina en la provincia
+  del Chaco, con detalle departamental. Elaboradas a partir de fuentes públicas oficiales.</p>
+
+  <div class="cards">
+    <a class="card" href="panel-apicola.html">
+      <h2>Apicultura</h2>
+      <p>Panorama provincial, detalle departamental de Chaco con evolución 2022–2026
+      y exportaciones nacionales de miel natural por destino.</p>
+      <span class="tags">RENAPA · INDEC · IGN</span>
+    </a>
+    <a class="card" href="panel-caprinos.html">
+      <h2>Ganadería caprina</h2>
+      <p>Detalle departamental de Chaco al 31-03-2026, serie provincial 2008–2026
+      y distribución por estrato de tamaño de majada.</p>
+      <span class="tags">SENASA · INDEC · IGN</span>
+    </a>
+  </div>
+
+  <h3>Fuentes</h3>
+  <ul>
+    <li>RENAPA — Registro Nacional de Productores Apícolas (datos.gob.ar / MAGyP)</li>
+    <li>Existencias caprinas — SENASA / Dirección Nacional de Ganadería</li>
+    <li>Comercio exterior, NCM 04090000 y serie OPEX de origen provincial — INDEC</li>
+    <li>Censo Nacional de Población, Hogares y Viviendas 2022 — INDEC (Redatam)</li>
+    <li>Geometrías departamentales — Instituto Geográfico Nacional</li>
+  </ul>
+
+  <h3>Notas metodológicas</h3>
+  <ul>
+    <li>Cada panel documenta internamente las limitaciones de sus fuentes: fechas de corte
+    heterogéneas, secreto estadístico y cobertura parcial de las series.</li>
+    <li>Los indicadores por habitante se calculan sobre población en viviendas particulares
+    del Censo 2022, con apertura urbano/rural mediante la variable URP.</li>
+    <li>Los paneles son archivos HTML autocontenidos: no requieren servidor ni conexión.</li>
+  </ul>
+
+  <footer>
+    Datos de fuentes públicas oficiales. Las cifras conservan los valores publicados por
+    cada organismo; las inconsistencias detectadas se señalan dentro de cada panel.
+  </footer>
+</div>
+</body>
+</html>
