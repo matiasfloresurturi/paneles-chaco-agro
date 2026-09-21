@@ -17,7 +17,8 @@ no requiere servidor, dependencias ni conexión a internet.
   2026-03-17).
 - **Exportaciones de miel** — NCM 04090000 por país de destino para 2012, 2025 y 2026
   (enero–agosto), estacionalidad mensual, comparación del precio implícito de Estados
-  Unidos contra el resto de los destinos, y origen provincial según la serie OPEX.
+  Unidos contra el resto de los destinos, exportaciones certificadas por SENASA con
+  apertura por bloque de destino, y origen provincial según la serie OPEX.
 
 ### `panel-caprinos.html`
 
@@ -35,6 +36,7 @@ no requiere servidor, dependencias ni conexión a internet.
 | Apiarios y colmenas por departamento | RENAPA — MAGyP / datos.gob.ar |
 | Existencias caprinas | SENASA / Dirección Nacional de Ganadería |
 | Exportaciones NCM 04090000 | INDEC / ARCA |
+| Exportaciones certificadas de miel | SENASA |
 | Origen provincial de las exportaciones (OPEX) | INDEC |
 | Población por departamento y apertura urbano/rural | Censo 2022, INDEC (Redatam, variable `URP`) |
 | Geometrías departamentales | Instituto Geográfico Nacional (WFS `ign:departamento`) |
@@ -57,6 +59,15 @@ Las limitaciones de cada fuente están señaladas dentro de los paneles. Las pri
   no por provincia de origen; no existe una cifra oficial de miel exportada por Chaco. En
   2025 y 2026 una parte de los registros está alcanzada por el secreto estadístico y se
   agrupa bajo el destino «Confidencial».
+- **Discrepancia SENASA / INDEC, pendiente de evaluar.** La tabla de SENASA (miel natural y
+  homogeneizada, acumulado a junio de 2026) suma 125.772 t sin incluir a Estados Unidos. Para
+  enero–agosto de 2026 el INDEC registra 85.696 t en total, de las cuales 53.727 t corresponden
+  a Estados Unidos: comparando universos equivalentes, SENASA informa 3,9 veces más volumen en
+  un período dos meses más corto. Las fuentes miden cosas distintas —SENASA certifica envíos,
+  el INDEC registra operaciones aduaneras efectivas— y el universo de SENASA incluye miel
+  homogeneizada, pero ninguna de esas diferencias explica una brecha de esa magnitud. Los datos
+  se publican sin corrección. En esa misma tabla, «Reino Unido» e «Inglaterra» figuran como
+  destinos separados.
 - **Estratos de tamaño caprino.** Miden participación del stock de animales, no de
   establecimientos, y sólo existen a nivel provincial.
 - **Denominadores poblacionales.** Corresponden a población en viviendas particulares
