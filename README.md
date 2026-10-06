@@ -18,7 +18,7 @@ no requiere servidor, dependencias ni conexión a internet.
 - **Exportaciones de miel** — NCM 04090000 por país de destino para 2012, 2025 y 2026
   (enero–agosto), estacionalidad mensual, comparación del precio implícito de Estados
   Unidos contra el resto de los destinos, exportaciones certificadas por SENASA con
-  apertura por bloque de destino, y origen provincial según la serie OPEX.
+  apertura por destino y por tipo de producto, y origen provincial según la serie OPEX.
 
 ### `panel-caprinos.html`
 
@@ -59,15 +59,16 @@ Las limitaciones de cada fuente están señaladas dentro de los paneles. Las pri
   no por provincia de origen; no existe una cifra oficial de miel exportada por Chaco. En
   2025 y 2026 una parte de los registros está alcanzada por el secreto estadístico y se
   agrupa bajo el destino «Confidencial».
-- **Discrepancia SENASA / INDEC, pendiente de evaluar.** La tabla de SENASA (miel natural y
-  homogeneizada, acumulado a junio de 2026) suma 125.772 t sin incluir a Estados Unidos. Para
-  enero–agosto de 2026 el INDEC registra 85.696 t en total, de las cuales 53.727 t corresponden
-  a Estados Unidos: comparando universos equivalentes, SENASA informa 3,9 veces más volumen en
-  un período dos meses más corto. Las fuentes miden cosas distintas —SENASA certifica envíos,
-  el INDEC registra operaciones aduaneras efectivas— y el universo de SENASA incluye miel
-  homogeneizada, pero ninguna de esas diferencias explica una brecha de esa magnitud. Los datos
-  se publican sin corrección. En esa misma tabla, «Reino Unido» e «Inglaterra» figuran como
-  destinos separados.
+- **Discrepancia SENASA / INDEC, pendiente de evaluar.** La tabla de SENASA (productos apícolas,
+  acumulado a junio de 2026) suma 127.326 t sin incluir a Estados Unidos. Para enero–agosto de 2026
+  el INDEC registra 85.696 t en total, de las cuales 53.727 t corresponden a Estados Unidos:
+  comparando universos equivalentes, SENASA informa 4,0 veces más volumen en un período dos meses
+  más corto. La apertura por producto acota el problema sin resolverlo: el 93,5% del volumen de
+  SENASA es miel homogeneizada y sólo el 6,0% es miel natural, mientras que el INDEC mide la
+  posición NCM 04090000, «Miel natural». Las clasificaciones no son equivalentes —la miel
+  homogeneizada se despacha bajo esa misma posición— de modo que la diferencia de producto no
+  explica la brecha de magnitud. Los datos se publican sin corrección. En esa misma tabla,
+  «Reino Unido» e «Inglaterra» figuran como destinos separados.
 - **Estratos de tamaño caprino.** Miden participación del stock de animales, no de
   establecimientos, y sólo existen a nivel provincial.
 - **Denominadores poblacionales.** Corresponden a población en viviendas particulares
